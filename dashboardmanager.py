@@ -1,5 +1,5 @@
 """
-Purpose: A manager for the dashboard element.
+Purpose: A manager for the dashboard.
 """
 
 from dash import Dash
