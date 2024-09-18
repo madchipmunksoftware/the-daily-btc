@@ -59,7 +59,7 @@ class News(Base):
 class DataBaseManager:
     def __init__(self):
         self.crypto_id = "bitcoin"
-        self.update_rate_sec = 60 * 12 # 12-Hour Delays
+        self.update_rate_sec = 60 * 60 * 12 # 12-Hour Delays
         self.create()
 
         # CoinGecko API
@@ -74,7 +74,7 @@ class DataBaseManager:
         return None
 
     def create(self):
-        self.engine = create_engine("sqlite:///instance/daily-btc.db", echo=True)
+        self.engine = create_engine("sqlite:///instance/daily-btc.db")
         Base.metadata.create_all(self.engine)
         return None
 
@@ -138,9 +138,9 @@ class DataBaseManager:
             "block_time_in_minutes": coingecko_data["block_time_in_minutes"],
             "price_usd": coingecko_data["market_data"]["current_price"]["usd"],
             "ath_usd": coingecko_data["market_data"]["ath"]["usd"],
-            "ath_date": coingecko_data["market_data"]["ath_date"]["usd"],
+            "ath_date": coingecko_data["market_data"]["ath_date"]["usd"].split("T")[0],
             "atl_usd": coingecko_data["market_data"]["atl"]["usd"],
-            "atl_date": coingecko_data["market_data"]["atl_date"]["usd"],
+            "atl_date": coingecko_data["market_data"]["atl_date"]["usd"].split("T")[0],
             "market_cap_usd": coingecko_data["market_data"]["market_cap"]["usd"],
             "fully_diluted_valuation_usd": coingecko_data["market_data"]["fully_diluted_valuation"]["usd"],
             "market_cap_rank": coingecko_data["market_data"]["market_cap_rank"],
@@ -195,4 +195,5 @@ class DataBaseManager:
                 if len(results) == 0:
                     session.execute(insert(News), new_entry_news)
                     session.commit()
+        print("\n", "HERE 1", "\n")
         return None
