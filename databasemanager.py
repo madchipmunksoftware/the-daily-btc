@@ -104,7 +104,7 @@ class DataBaseManager:
                     "github_closed_issues_count": statuses_query_result[0].github_closed_issues_count,
                     "github_pull_requests_merged_count": statuses_query_result[0].github_pull_requests_merged_count,
                     "github_pull_request_contributors_count": statuses_query_result[0].github_pull_request_contributors_count
-                    }
+                }
                 statuses_rows_list.append(statuses_row)
 
                 news_rows_list = []
@@ -120,17 +120,19 @@ class DataBaseManager:
                         "url_to_image": news_query_result[0].url_to_image,
                         "published_timestamp": news_query_result[0].published_timestamp,
                         "published_date": news_query_result[0].published_date
-                        }
+                    }
                     news_rows_list.append(news_row)
             return {'statuses': statuses_rows_list, 'news': news_rows_list}
 
     def update(self):
         # CoinGecko API
-        response_coingecko = requests.get(url=self.coingecko_api_endpoint, 
-                                          headers={
-                                              "accept": "application/json",
-                                              "x-cg-demo-api-key": self.coingecko_api_key
-                                              })
+        response_coingecko = requests.get(
+            url=self.coingecko_api_endpoint, 
+            headers={
+                "accept": "application/json",
+                "x-cg-demo-api-key": self.coingecko_api_key
+            }
+        )
         response_coingecko.raise_for_status()
         coingecko_data = response_coingecko.json()
 
@@ -157,25 +159,27 @@ class DataBaseManager:
         }
 
         with Session(self.engine) as session:
-            results = session.execute(select(Statuses).where(Statuses.last_updated_timestamp == 
-                                                             new_entry_statuses["last_updated_timestamp"])).all()
+            results = session.execute(select(Statuses)
+                                      .where(Statuses.last_updated_timestamp == new_entry_statuses["last_updated_timestamp"])).all()
             if len(results) == 0:
                 session.execute(insert(Statuses), new_entry_statuses)
                 session.commit()
 
         # News API
-        response_news = requests.get(url=self.news_api_endpoint, 
-                                     params={
-                                         "q": self.crypto_id,
-                                         "searchIn": "title",
-                                         "language": "en",
-                                         "from": (dt.datetime.now() - dt.timedelta(1)).strftime("%Y-%m-%d") + "T00:00:00",
-                                         "to": dt.datetime.now().strftime("%Y-%m-%d") + "T00:00:00"
-                                         },
-                                     headers={
-                                         "accept": "application/json",
-                                         "X-Api-Key": self.news_api_key,
-                                         })
+        response_news = requests.get(
+            url=self.news_api_endpoint, 
+            params={
+                "q": self.crypto_id,
+                "searchIn": "title",
+                "language": "en",
+                "from": (dt.datetime.now() - dt.timedelta(1)).strftime("%Y-%m-%d") + "T00:00:00",
+                "to": dt.datetime.now().strftime("%Y-%m-%d") + "T00:00:00"
+            },
+            headers={
+                "accept": "application/json",
+                "X-Api-Key": self.news_api_key,
+            }
+        )
         response_news.raise_for_status()
         news_data = response_news.json()["articles"]
 
@@ -190,8 +194,9 @@ class DataBaseManager:
                     "url_to_image": news["urlToImage"],
                     "published_timestamp": news["publishedAt"],
                     "published_date": news["publishedAt"].split("T")[0]
-                    }
-                results = session.execute(select(News).where(News.url_to_post == new_entry_news["url_to_post"])).all()
+                }
+                results = session.execute(select(News)
+                                          .where(News.url_to_post == new_entry_news["url_to_post"])).all()
                 if len(results) == 0:
                     session.execute(insert(News), new_entry_news)
                     session.commit()
