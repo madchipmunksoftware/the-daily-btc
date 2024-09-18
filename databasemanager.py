@@ -4,7 +4,7 @@ Purpose: A manager for the database.
 
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, text, ForeignKey, String, Date
+from sqlalchemy import create_engine, ForeignKey, select, insert, update
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 from typing import Optional, List
 import requests
@@ -15,81 +15,135 @@ load_dotenv()
 class Base(DeclarativeBase):
     pass
 
-class Prices(Base):
-    __tablename__ = "prices"
+class Statuses(Base):
+    __tablename__ = "statuses"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(30))
-    description: Mapped[Optional[str]]
-    date = mapped_column(Date)
+    block_time_in_minutes: Mapped[Optional[int]]
+    market_cap_rank: Mapped[Optional[int]]
+    price_usd: Mapped[Optional[float]]
+    ath_usd: Mapped[Optional[int]]
+    ath_date: Mapped[Optional[str]]
+    atl_usd: Mapped[Optional[int]]
+    atl_date: Mapped[Optional[str]]
+    market_cap_usd: Mapped[Optional[int]]
+    fully_diluted_valuation_usd: Mapped[Optional[int]]
+    total_volume_usd: Mapped[Optional[int]]
+    circulating_supply: Mapped[Optional[int]]
+    max_supply: Mapped[Optional[int]]
+    last_updated: Mapped[Optional[str]]
+    twitter_followers_count: Mapped[Optional[int]]
+    github_total_issues_count: Mapped[Optional[int]]
+    github_closed_issues_count: Mapped[Optional[int]]
+    github_pull_requests_merged_count: Mapped[Optional[int]]
+    github_pull_request_contributors_count: Mapped[Optional[int]]
 
-    news_post: Mapped[List["News"]] = relationship(back_populates="date")
-
-    def __repr__(self) -> str:
-        return f"Prices(id={self.id!r}, name={self.name!r}, description={self.description!r}, date={self.date!r})"
+    news_posts_rel: Mapped[List["News"]] = relationship(back_populates="last_updated_rel")
 
 class News(Base):
     __tablename__ = "news"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    date_id = mapped_column(ForeignKey("prices.date"))
+    last_updated_id = mapped_column(ForeignKey("statuses.last_updated"))
 
-    date: Mapped[Prices] = relationship(back_populates="news_post")
-
-    def __repr__(self) -> str:
-        return f"News(id={self.id!r}, date_id={self.date_id!r})"
+    last_updated_rel: Mapped[Statuses] = relationship(back_populates="news_posts_rel")
 
 class DataBaseManager:
     def __init__(self):
-        self.bitcoin_id = "bitcoin"
-        self.refresh_rate_sec = 60 * 30
+        self.crypto_id = "bitcoin"
+        self.update_rate_sec = 60 * 60 # 1-Hour Delays
 
         # Database
-        self.engine = create_engine("sqlite:///:memory:", echo=True)
+        self.engine = create_engine("sqlite:///instance/daily-btc.db", echo=True)
+        # self.engine = create_engine("sqlite:///:memory:", echo=True)
         Base.metadata.create_all(self.engine)
-        self.prices_table = Prices()
-        self.news_table = News()
 
         # CoinGecko API
         self.coingecko_api_key = os.getenv("COINGECK_API")
-        self.coingecko_api_root_url = "https://api.coingecko.com/api/v3/"
-        self.coingecko_api_coins_generaldata_url = self.coingecko_api_root_url + f"coins/{self.bitcoin_id}"
+        self.coingecko_api_url = f"https://api.coingecko.com/api/v3/coins/{self.crypto_id}"
         # General Data Doc: https://docs.coingecko.com/v3.0.1/reference/coins-id
-        self.coingecko_api_coins_historicalchartdata_url = self.coingecko_api_root_url + f"coins/{self.bitcoin_id}/market_chart"
-        # Historical Chart Data Doc: https://docs.coingecko.com/v3.0.1/reference/coins-id-market-chart
 
         # News API
         self.news_api_key = os.getenv("News_API")
-        self.news_api_root_url = "https://api.coingecko.com/api/v3/"
-        return None
-    
-    def test_create(self):
-        with self.engine.connect() as connection:
-            connection.execute(text("CREATE TABLE some_table (x int, y int)"))
-            connection.execute(text("INSERT INTO some_table (x, y) VALUES (:x, :y)"), 
-                               [{"x": 1, "y": 2}, {"x": 3, "y": 4}])
-            connection.commit()
-        return None
-    
-    def test_query(self):
-        stmt1 = text("UPDATE some_table SET y = :y WHERE x = :x")
-        stmt2 = text("SELECT x, y FROM some_table WHERE y > :y ORDER BY x, y")
-        with Session(self.engine) as session:
-            session.execute(stmt1, {"x": 1, "y": 6})
-            session.commit()
-            result = session.execute(stmt2, {"y": 2})
-            for row in result:
-                print(f"x: {row.x} | y: {row.y}")
+        self.news_api_url = "https://api.coingecko.com/api/v3/" + f""
         return None
 
     def read(self):
-        pass
+        with Session(self.engine) as session:
+            rows_list = []
+            results = session.execute(select(Statuses)).all()
+            for result in results:
+                row_entry = {
+                    "id": result[0].id,
+                    "block_time_in_minutes": result[0].block_time_in_minutes,
+                    "price_usd": result[0].price_usd,
+                    "ath_usd": result[0].ath_usd,
+                    "ath_date": result[0].ath_date,
+                    "atl_usd": result[0].atl_usd,
+                    "atl_date": result[0].atl_date,
+                    "market_cap_usd": result[0].market_cap_usd,
+                    "fully_diluted_valuation_usd": result[0].fully_diluted_valuation_usd,
+                    "market_cap_rank": result[0].market_cap_rank,
+                    "total_volume_usd": result[0].total_volume_usd,
+                    "max_supply": result[0].max_supply,
+                    "circulating_supply": result[0].circulating_supply,
+                    "last_updated": result[0].last_updated,
+                    "twitter_followers_count": result[0].twitter_followers_count,
+                    "github_total_issues_count": result[0].github_total_issues_count,
+                    "github_closed_issues_count": result[0].github_closed_issues_count,
+                    "github_pull_requests_merged_count": result[0].github_pull_requests_merged_count,
+                    "github_pull_request_contributors_count": result[0].github_pull_request_contributors_count
+                }
+                rows_list.append(row_entry)
+                rows_df = pd.DataFrame(rows_list).sort_values("id")
+            return rows_df
 
     def update(self):
-        pass
+        # CoinGecko API
+        response_coingecko = requests.get(url=self.coingecko_api_url, 
+                                          headers={
+                                              "accept": "application/json",
+                                              "x-cg-demo-api-key": self.coingecko_api_key
+                                              })
+        response_coingecko.raise_for_status()
+        coingecko_data = response_coingecko.json()
+
+        new_entry_statuses = {
+            "block_time_in_minutes": coingecko_data["block_time_in_minutes"],
+            "price_usd": coingecko_data["market_data"]["current_price"]["usd"],
+            "ath_usd": coingecko_data["market_data"]["ath"]["usd"],
+            "ath_date": coingecko_data["market_data"]["ath_date"]["usd"],
+            "atl_usd": coingecko_data["market_data"]["atl"]["usd"],
+            "atl_date": coingecko_data["market_data"]["atl_date"]["usd"],
+            "market_cap_usd": coingecko_data["market_data"]["market_cap"]["usd"],
+            "fully_diluted_valuation_usd": coingecko_data["market_data"]["fully_diluted_valuation"]["usd"],
+            "market_cap_rank": coingecko_data["market_data"]["market_cap_rank"],
+            "total_volume_usd": coingecko_data["market_data"]["total_volume"]["usd"],
+            "max_supply": coingecko_data["market_data"]["max_supply"],
+            "circulating_supply": coingecko_data["market_data"]["circulating_supply"],
+            "last_updated": coingecko_data["market_data"]["last_updated"],
+            "twitter_followers_count": coingecko_data["community_data"]["twitter_followers"],
+            "github_total_issues_count": coingecko_data["developer_data"]["total_issues"],
+            "github_closed_issues_count": coingecko_data["developer_data"]["closed_issues"],
+            "github_pull_requests_merged_count": coingecko_data["developer_data"]["pull_requests_merged"],
+            "github_pull_request_contributors_count": coingecko_data["developer_data"]["pull_request_contributors"]
+        }
+
+        with Session(self.engine) as session:
+            results = session.execute(select(Statuses).where(Statuses.last_updated == new_entry_statuses["last_updated"])).all()
+            if len(results) == 0:
+                session.execute(insert(Statuses), new_entry_statuses)
+                session.commit()
+
+        # # News API
+        # response_news = requests.get(url=self.news_api_url, 
+        #                              headers={
+        #                                  "accept": "application/json",
+        #                                  "X-Api-Key": self.news_api_key
+        #                                  })
+        # response_news.raise_for_status()
+        # news_data = response_news.json()
+        return None
 
     def delete(self):
         pass
-
-    def refresh():
-        return None

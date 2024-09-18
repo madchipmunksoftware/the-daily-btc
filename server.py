@@ -9,9 +9,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 flask_app = Flask(__name__)
 database_manager = DataBaseManager()
+database_manager.update()
+temp = database_manager.read()
+print(temp)
 exit()
-database_manager.test_create()
-database_manager.test_query()
 
 dashboard_manager = DashBoardManager(flask_app)
 
@@ -25,12 +26,12 @@ def get_all_calculated_metrics_api():
 
 if __name__ == "__main__":
     scheduler = BackgroundScheduler(daemon=True)
-    scheduler.add_job(func=database_manager.refresh(), 
+    scheduler.add_job(func=database_manager.update(), 
                       trigger='interval', 
-                      seconds=dashboard_manager.refresh_rate_sec)
-    scheduler.add_job(func=dashboard_manager.refresh(), 
-                      args=[database_manager],
+                      seconds=dashboard_manager.update_rate_sec)
+    scheduler.add_job(func=dashboard_manager.update(), 
+                      args=[database_manager.read()],
                       trigger='interval', 
-                      seconds=1.5 * dashboard_manager.refresh_rate_sec)
+                      seconds=1.5 * dashboard_manager.update_rate_sec)
     scheduler.start()
     flask_app.run(debug=True)
