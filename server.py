@@ -10,14 +10,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 flask_app = Flask(__name__)
 database_manager = DataBaseManager()
 database_manager.update()
-temp = database_manager.read()
-print("\n\n")
-print(temp)
-print(temp[0]["last_updated_timestamp"], temp[0]["last_updated_date"])
-print(temp[1]["published_timestamp"], temp[1]["published_date"])
-exit()
-
 dashboard_manager = DashBoardManager(flask_app)
+dashboard_manager.update(database_manager.read())
+exit()
 
 @flask_app.route("/")
 def get_home_page():
@@ -35,6 +30,6 @@ if __name__ == "__main__":
     scheduler.add_job(func=dashboard_manager.update(), 
                       args=[database_manager.read()],
                       trigger='interval', 
-                      seconds=1.5 * dashboard_manager.update_rate_sec)
+                      seconds=dashboard_manager.update_rate_sec)
     scheduler.start()
     flask_app.run(debug=True)

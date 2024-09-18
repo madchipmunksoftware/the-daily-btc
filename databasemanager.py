@@ -8,7 +8,6 @@ from sqlalchemy import create_engine, ForeignKey, select, insert
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 from typing import Optional, List
 import requests
-import pandas as pd
 import datetime as dt
 
 load_dotenv()
@@ -107,7 +106,6 @@ class DataBaseManager:
                     "github_pull_request_contributors_count": statuses_query_result[0].github_pull_request_contributors_count
                     }
                 statuses_rows_list.append(statuses_row)
-                statuses_df = pd.DataFrame(statuses_rows_list).sort_values("id")
 
                 news_rows_list = []
                 news_query_results = session.execute(select(News)).all()
@@ -124,8 +122,7 @@ class DataBaseManager:
                         "published_date": news_query_result[0].published_date
                         }
                     news_rows_list.append(news_row)
-                    news_df = pd.DataFrame(news_rows_list).sort_values("id")
-            return [statuses_df, news_df]
+            return {'statuses': statuses_rows_list, 'news': news_rows_list}
 
     def update(self):
         # CoinGecko API

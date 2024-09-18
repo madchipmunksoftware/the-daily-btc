@@ -10,5 +10,7 @@ class DashBoardManager:
         self.dashboard = Dash(__name__, server=flask_app, url_base_pathname="/")
         return None
 
-    def refresh(database_manager):
-        pass
+    def update(data_objects):
+        statuses_df = pd.DataFrame(data_objects['statuses'])
+        news_df = pd.DataFrame(data_objects['news'])
+        return None
