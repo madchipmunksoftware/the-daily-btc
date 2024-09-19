@@ -29,10 +29,10 @@ if __name__ == "__main__":
         seconds=database_manager.update_rate_sec
     )
     scheduler.add_job(
-        func=dashboard_manager.update, 
-        args=[database_manager.read()],
-        trigger='interval', 
-        seconds=database_manager.update_rate_sec + 60 * 10 # 10-Minute Delay For DB To Finish Updating
+        func = dashboard_manager.update, 
+        args = [database_manager.read()],
+        trigger = 'interval', 
+        seconds = database_manager.update_rate_sec + 60 * 15 # 15-Minute Delay For DB Update
     )
     scheduler.start()
     flask_app.run(debug=True)

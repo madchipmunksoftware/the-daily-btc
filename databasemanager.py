@@ -80,6 +80,7 @@ class DataBaseManager:
 
     def read(self):
         with Session(self.engine) as session:
+            # STATUSES TABLE
             statuses_rows_list = []
             statuses_query_results = session.execute(select(Statuses)).all()
             for statuses_query_result in statuses_query_results:
@@ -107,31 +108,35 @@ class DataBaseManager:
                 }
                 statuses_rows_list.append(statuses_row)
 
-                news_rows_list = []
-                news_query_results = session.execute(select(News)).all()
-                for news_query_result in news_query_results:
-                    news_row = {
-                        "id": news_query_result[0].id,
-                        "source_name": news_query_result[0].source_name,
-                        "author": news_query_result[0].author,
-                        "title": news_query_result[0].title,
-                        "description": news_query_result[0].description,
-                        "url_to_post": news_query_result[0].url_to_post,
-                        "url_to_image": news_query_result[0].url_to_image,
-                        "published_timestamp": news_query_result[0].published_timestamp,
-                        "published_date": news_query_result[0].published_date
-                    }
-                    news_rows_list.append(news_row)
-            return {'statuses': statuses_rows_list, 'news': news_rows_list}
+            # NEWS TABLE
+            news_rows_list = []
+            news_query_results = session.execute(select(News)).all()
+            for news_query_result in news_query_results:
+                news_row = {
+                    "id": news_query_result[0].id,
+                    "source_name": news_query_result[0].source_name,
+                    "author": news_query_result[0].author,
+                    "title": news_query_result[0].title,
+                    "description": news_query_result[0].description,
+                    "url_to_post": news_query_result[0].url_to_post,
+                    "url_to_image": news_query_result[0].url_to_image,
+                    "published_timestamp": news_query_result[0].published_timestamp,
+                    "published_date": news_query_result[0].published_date
+                }
+                news_rows_list.append(news_row)
+            
+            # DATA OBJECTS
+            data_objects = {
+                'statuses': statuses_rows_list, 
+                'news': news_rows_list
+            }
+            return data_objects
 
     def update(self):
         # CoinGecko API
         response_coingecko = requests.get(
             url=self.coingecko_api_endpoint, 
-            headers={
-                "accept": "application/json",
-                "x-cg-demo-api-key": self.coingecko_api_key
-            }
+            headers={"accept": "application/json", "x-cg-demo-api-key": self.coingecko_api_key}
         )
         response_coingecko.raise_for_status()
         coingecko_data = response_coingecko.json()
@@ -175,10 +180,7 @@ class DataBaseManager:
                 "from": (dt.datetime.now() - dt.timedelta(1)).strftime("%Y-%m-%d") + "T00:00:00",
                 "to": dt.datetime.now().strftime("%Y-%m-%d") + "T00:00:00"
             },
-            headers={
-                "accept": "application/json",
-                "X-Api-Key": self.news_api_key,
-            }
+            headers={"accept": "application/json", "X-Api-Key": self.news_api_key}
         )
         response_news.raise_for_status()
         news_data = response_news.json()["articles"]

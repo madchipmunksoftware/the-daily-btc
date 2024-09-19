@@ -24,24 +24,40 @@ class DashBoardManager:
         statuses_df["last_updated_date"] = pd.to_datetime(statuses_df["last_updated_date"])
         news_df = pd.DataFrame(data_objects['news'])
 
+        # CALCULATIONS
         fig_columns = [
             "last_updated_date", 
             "price_usd", "market_cap_usd", "fully_diluted_valuation_usd", "total_volume_usd",
             "twitter_followers_count", "github_total_issues_count", "github_closed_issues_count",
             "github_pull_requests_merged_count", "github_pull_request_contributors_count"
         ]
-        fig_df = (statuses_df[fig_columns].groupby("last_updated_date").mean().sort_index().reset_index()
-                  .astype({"github_total_issues_count": int, "github_closed_issues_count": int}))
+        fig_df = (statuses_df[fig_columns].groupby("last_updated_date")
+                  .agg(
+                      {
+                          "price_usd": "mean",
+                          "market_cap_usd": "mean",
+                          "fully_diluted_valuation_usd": "mean",
+                          "total_volume_usd": "mean",
+                          "twitter_followers_count": "max",
+                          "github_total_issues_count": "max",
+                          "github_closed_issues_count": "max",
+                          "github_pull_requests_merged_count": "max", 
+                          "github_pull_request_contributors_count": "max"
+                        }
+                    )
+                    .sort_index().reset_index()
+                  )
         fig_df["price_ema50_usd"] = fig_df["price_usd"].ewm(span=50, adjust=False).mean()
         fig_df["price_ema200_usd"] = fig_df["price_usd"].ewm(span=200, adjust=False).mean()
         fig_df["twitter_followers_markers_size"] = (
-            fig_df["twitter_followers_count"] * (100 - 10) / 
+            10 + (100 - 10) * 
+            (fig_df["twitter_followers_count"] - min(fig_df["twitter_followers_count"])) / 
             (max(fig_df["twitter_followers_count"]) - min(fig_df["twitter_followers_count"]))
             if (max(fig_df["twitter_followers_count"]) - min(fig_df["twitter_followers_count"])) > 0 
             else [10] * len(fig_df["twitter_followers_count"])
         )
 
-        # ECONOMICS
+        # ECONOMICS PLOTS
         fig_prices = go.Figure()
         fig_prices.add_trace(
             go.Scatter(
@@ -74,16 +90,21 @@ class DashBoardManager:
             )
         )
         fig_prices.update_layout(
-            {
-                "xaxis_title": "DATE", 
-                "yaxis_title": "AVERAGE PRICE ($)"
-            }
+            xaxis={"title": "DATE"},
+            yaxis={
+                "range": [
+                    fig_df["price_usd"].iloc[0] * 0.95, 
+                    fig_df["price_usd"].iloc[-1] * 1.05
+                    ]
+            },
+            title={"text": "DAILY AVERAGE PRICE ($)", "x": 0.5}
         )
 
         fig_market_caps = go.Figure()
         fig_market_caps.add_trace(
             go.Scatter(
-                x=fig_df["last_updated_date"], y=fig_df["market_cap_usd"], 
+                x=fig_df["last_updated_date"], 
+                y=fig_df["market_cap_usd"], 
                 line={"color": "red"},
                 marker={"size": 12},
                 mode='lines+markers', 
@@ -92,7 +113,8 @@ class DashBoardManager:
         )
         fig_market_caps.add_trace(
             go.Scatter(
-                x=fig_df["last_updated_date"], y=fig_df["fully_diluted_valuation_usd"], 
+                x=fig_df["last_updated_date"], 
+                y=fig_df["fully_diluted_valuation_usd"], 
                 line={"color": "springgreen"},
                 marker={"size": 12},
                 mode='lines+markers',
@@ -100,10 +122,14 @@ class DashBoardManager:
             )
         )
         fig_market_caps.update_layout(
-            {
-                "xaxis_title": "DATE", 
-                "yaxis_title": "AVERAGE MARKET CAP ($)"
-            }
+            xaxis={"title": "DATE"},
+            yaxis={
+                "range": [
+                    fig_df["market_cap_usd"].iloc[0] * 0.95, 
+                    fig_df["fully_diluted_valuation_usd"].iloc[-1] * 1.05
+                    ]
+            },
+            title={"text": "DAILY AVERAGE MARKET CAP ($)", "x": 0.5}
         )
 
         fig_total_volumes = go.Figure()
@@ -117,65 +143,48 @@ class DashBoardManager:
             )
         )
         fig_total_volumes.update_layout(
-            {
-                "xaxis_title": "DATE", 
-                "yaxis_title": "AVERAGE TOTAL VOLUME ($)"
-            }
+            xaxis={"title": "DATE"},
+            yaxis={
+                "range": [
+                    fig_df["total_volume_usd"].iloc[0] * 0.95, 
+                    fig_df["total_volume_usd"].iloc[-1] * 1.05
+                    ]
+            },
+            title={"text": "DAILY AVERAGE TOTAL VOLUME ($)", "x": 0.5}
         )
 
-        # SOCIALS
-        print(fig_df["github_total_issues_count"].iloc[-1])
+        # SOCIALS PLOTS
         fig_github = go.Figure()
         fig_github.add_trace(
             go.Scatter(
                 x=fig_df["last_updated_date"], 
                 y=fig_df["github_total_issues_count"],
+                mode="lines+text",
                 line={"color": "red"},
-                marker={"size": 12},
-                mode='lines+markers',
+                text=fig_df["github_total_issues_count"].astype("str"),
+                textfont={"color": "red"},
+                textposition="top center",
+                name="OPENED",
+                fill='tozeroy'
             )
         )
         fig_github.add_trace(
             go.Scatter(
                 x=fig_df["last_updated_date"], 
                 y=fig_df["github_closed_issues_count"],
+                mode="lines+text",
                 line={"color": "springgreen"},
-                marker={"size": 12},
-                mode='lines+markers',
+                text=fig_df["github_closed_issues_count"].astype("str"),
+                textfont={"color": "springgreen"},
+                textposition="bottom center",
+                name="CLOSED",
+                fill='tozeroy'
             )
         )
         fig_github.update_layout(
-            xaxis = {
-                "showline": True,
-                "showgrid": False,
-                "showticklabels": True,
-                "title": "DATE"
-            },
-            yaxis = {
-                "showgrid": False,
-                "zeroline": False,
-                "showline": False,
-                "showticklabels": False,
-            },
-            title_text = "TOTAL COUNT OF ISSUES",
-            title_x = 0.5,
-            showlegend = False,
-            annotations = [
-                {
-                    "xref": "paper",
-                    "x": 0.95,
-                    "y": fig_df["github_total_issues_count"].iloc[-1],
-                    "text": f"OPENED: {fig_df["github_total_issues_count"].iloc[-1]}",
-                    "font": {"color": "red"}
-                },
-                {
-                    "xref": "paper",
-                    "x": 0.95,
-                    "y": fig_df["github_closed_issues_count"].iloc[-1],
-                    "text": f"CLOSED: {fig_df["github_closed_issues_count"].iloc[-1]}",
-                    "font": {"color": "springgreen"}
-                }
-            ]
+            xaxis={"showgrid": False, "title": "DATE"},
+            yaxis={"showgrid": False, "showticklabels": False},
+            title = {"text": "TOTAL COUNT OF ISSUES", "x": 0.5}
         )
 
         fig_twitter = go.Figure()
@@ -183,37 +192,48 @@ class DashBoardManager:
             go.Scatter(
                 x=fig_df["last_updated_date"], 
                 y=fig_df["twitter_followers_count"],
+                mode='markers',
                 marker={
                     "color": fig_df["twitter_followers_count"].to_list(), 
                     "size": fig_df["twitter_followers_markers_size"].to_list(),
+                    "colorbar": {"title": "RELATIVE SCALE"},
                     "showscale": True
-                },
-                mode='markers'
+                }
             )
         )
         fig_twitter.update_layout(
-            xaxis = {
-                "showline": True,
-                "showgrid": False,
-                "title": "DATE", 
-            },
-            yaxis = {
+            xaxis={"showline": True, "showgrid": False, "title": "DATE" },
+            yaxis={
                 "showgrid": False,
                 "showticklabels": False,
+                "range": [
+                    fig_df["twitter_followers_count"].iloc[0] * 0.95, 
+                    fig_df["twitter_followers_count"].iloc[-1] * 1.05
+                    ]
             },
-            title_text = "TOTAL COUNT OF FOLLOWERS",
-            title_x = 0.5
+            title={"text": "TOTAL COUNT OF FOLLOWERS", "x": 0.5}
         )
 
+        # GENERAL PLOTS STYLINGS
         for fig_object in [fig_prices, fig_market_caps, fig_total_volumes, fig_github, fig_twitter]:
             fig_object.update_layout(
                 {
                     "plot_bgcolor": "darkslategray", 
                     "paper_bgcolor": "darkslategray", 
                     "font_color": "white",
+                },
+                xaxis = {
+                    "tickformat": "%b %d, %Y",
+                    "tickangle": 90,
+                    "dtick": 86400000,
+                    "range": [
+                        fig_df["last_updated_date"].iloc[0] - pd.DateOffset(days=1), 
+                        fig_df["last_updated_date"].iloc[-1] + pd.DateOffset(days=1)
+                        ]
                 }
             )
 
+        # DASHBOARD OBJECTS
         dash_objects = {
             "headline": {
                 "market_cap": statuses_df.loc[0, 'market_cap_rank'],
