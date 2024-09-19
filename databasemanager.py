@@ -200,5 +200,4 @@ class DataBaseManager:
                 if len(results) == 0:
                     session.execute(insert(News), new_entry_news)
                     session.commit()
-        print("\n", "HERE 1", "\n")
         return None
