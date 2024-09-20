@@ -59,22 +59,23 @@ class News(Base):
 class DataBaseManager:
     def __init__(self):
         self.crypto_id = "bitcoin"
-        self.update_rate_sec = 60 * 60 * 12 # 12-Hour Delays
+        self.update_rate_sec = 60 * 60 * 4 # 4-Hour Delays
+        self.db_path = os.getenv("DB_PATH")
         self.create()
 
-        # CoinGecko API
+        ### CoinGecko API ###
+        # General Data Endpoint: https://docs.coingecko.com/v3.0.1/reference/coins-id
         self.coingecko_api_key = os.getenv("COINGECKO_API_KEY")
         self.coingecko_api_endpoint = f"https://api.coingecko.com/api/v3/coins/{self.crypto_id}"
-        # General Data Endpoint: https://docs.coingecko.com/v3.0.1/reference/coins-id
 
-        # News API
+        ### News API ###
+        # Everything Endpoint: https://newsapi.org/docs/endpoints/everything
         self.news_api_key = os.getenv("NEWS_API_KEY")
         self.news_api_endpoint = "https://newsapi.org/v2/everything"
-        # Everything Endpoint: https://newsapi.org/docs/endpoints/top-headlines
         return None
 
     def create(self):
-        self.engine = create_engine("sqlite:///instance/daily-btc.db")
+        self.engine = create_engine(f"sqlite:///{self.db_path}")
         Base.metadata.create_all(self.engine)
         return None
 
@@ -165,7 +166,8 @@ class DataBaseManager:
 
         with Session(self.engine) as session:
             results = session.execute(select(Statuses)
-                                      .where(Statuses.last_updated_timestamp == new_entry_statuses["last_updated_timestamp"])).all()
+                                      .where(Statuses.last_updated_timestamp == 
+                                             new_entry_statuses["last_updated_timestamp"])).all()
             if len(results) == 0:
                 session.execute(insert(Statuses), new_entry_statuses)
                 session.commit()
@@ -198,7 +200,8 @@ class DataBaseManager:
                     "published_date": news["publishedAt"].split("T")[0]
                 }
                 results = session.execute(select(News)
-                                          .where(News.url_to_post == new_entry_news["url_to_post"])).all()
+                                          .where(News.url_to_post == 
+                                                 new_entry_news["url_to_post"])).all()
                 if len(results) == 0:
                     session.execute(insert(News), new_entry_news)
                     session.commit()
