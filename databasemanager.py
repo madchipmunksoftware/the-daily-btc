@@ -1,5 +1,5 @@
 """
-Purpose: A manager for the database.
+Purpose: A database manager for The Daily BTC Web Application.
 """
 
 import os
@@ -59,17 +59,17 @@ class News(Base):
 class DataBaseManager:
     def __init__(self):
         self.crypto_id = "bitcoin"
-        self.update_rate_sec = 60 * 60 * 4 # 4-Hour Delays
+        self.update_rate_sec = 60 * 60 * 12 # 12-Hour Delays
         self.db_path = os.getenv("DB_PATH")
         self.create()
 
-        ### CoinGecko API ###
-        # General Data Endpoint: https://docs.coingecko.com/v3.0.1/reference/coins-id
+        # CoinGecko API
+        ### General Data Endpoint: https://docs.coingecko.com/v3.0.1/reference/coins-id
         self.coingecko_api_key = os.getenv("COINGECKO_API_KEY")
         self.coingecko_api_endpoint = f"https://api.coingecko.com/api/v3/coins/{self.crypto_id}"
 
-        ### News API ###
-        # Everything Endpoint: https://newsapi.org/docs/endpoints/everything
+        # News API
+        ### Everything Endpoint: https://newsapi.org/docs/endpoints/everything
         self.news_api_key = os.getenv("NEWS_API_KEY")
         self.news_api_endpoint = "https://newsapi.org/v2/everything"
         return None
@@ -106,7 +106,7 @@ class DataBaseManager:
                     "github_closed_issues_count": statuses_query_result[0].github_closed_issues_count,
                     "github_pull_requests_merged_count": statuses_query_result[0].github_pull_requests_merged_count,
                     "github_pull_request_contributors_count": statuses_query_result[0].github_pull_request_contributors_count
-                }
+                    }
                 statuses_rows_list.append(statuses_row)
 
             # NEWS TABLE
@@ -123,22 +123,22 @@ class DataBaseManager:
                     "url_to_image": news_query_result[0].url_to_image,
                     "published_timestamp": news_query_result[0].published_timestamp,
                     "published_date": news_query_result[0].published_date
-                }
+                    }
                 news_rows_list.append(news_row)
             
             # DATA OBJECTS
-            data_objects = {
-                'statuses': statuses_rows_list, 
-                'news': news_rows_list
-            }
+            data_objects = {'statuses': statuses_rows_list, 'news': news_rows_list}
             return data_objects
 
     def update(self):
         # CoinGecko API
         response_coingecko = requests.get(
             url=self.coingecko_api_endpoint, 
-            headers={"accept": "application/json", "x-cg-demo-api-key": self.coingecko_api_key}
-        )
+            headers={
+                "accept": "application/json", 
+                "x-cg-demo-api-key": self.coingecko_api_key
+                }
+            )
         response_coingecko.raise_for_status()
         coingecko_data = response_coingecko.json()
 
@@ -162,12 +162,15 @@ class DataBaseManager:
             "github_closed_issues_count": coingecko_data["developer_data"]["closed_issues"],
             "github_pull_requests_merged_count": coingecko_data["developer_data"]["pull_requests_merged"],
             "github_pull_request_contributors_count": coingecko_data["developer_data"]["pull_request_contributors"]
-        }
+            }
 
         with Session(self.engine) as session:
-            results = session.execute(select(Statuses)
-                                      .where(Statuses.last_updated_timestamp == 
-                                             new_entry_statuses["last_updated_timestamp"])).all()
+            results = (
+                session.execute(
+                    select(Statuses)
+                    .where(Statuses.last_updated_timestamp == new_entry_statuses["last_updated_timestamp"])
+                    ).all()
+                )
             if len(results) == 0:
                 session.execute(insert(Statuses), new_entry_statuses)
                 session.commit()
@@ -181,9 +184,12 @@ class DataBaseManager:
                 "language": "en",
                 "from": (dt.datetime.now() - dt.timedelta(1)).strftime("%Y-%m-%d") + "T00:00:00",
                 "to": dt.datetime.now().strftime("%Y-%m-%d") + "T00:00:00"
-            },
-            headers={"accept": "application/json", "X-Api-Key": self.news_api_key}
-        )
+                },
+            headers={
+                "accept": "application/json", 
+                "X-Api-Key": self.news_api_key
+                }
+            )
         response_news.raise_for_status()
         news_data = response_news.json()["articles"]
 
@@ -198,10 +204,13 @@ class DataBaseManager:
                     "url_to_image": news["urlToImage"],
                     "published_timestamp": news["publishedAt"],
                     "published_date": news["publishedAt"].split("T")[0]
-                }
-                results = session.execute(select(News)
-                                          .where(News.url_to_post == 
-                                                 new_entry_news["url_to_post"])).all()
+                    }
+                results = (
+                    session.execute(
+                        select(News)
+                        .where(News.url_to_post == new_entry_news["url_to_post"])
+                        ).all()
+                    )
                 if len(results) == 0:
                     session.execute(insert(News), new_entry_news)
                     session.commit()

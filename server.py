@@ -1,5 +1,5 @@
 """
-Purpose: HTTP Server for Daily BTC Web App.
+Purpose: HTTP Server for The Daily BTC Web Application.
 """
 
 from databasemanager import DataBaseManager
@@ -20,13 +20,13 @@ if __name__ == "__main__":
         func=database_manager.update, 
         trigger='interval', 
         seconds=database_manager.update_rate_sec
-    )
+        )
     scheduler.add_job(
         func = dashboard_manager.update, 
         args = [database_manager.read()],
         trigger = 'interval',
-        seconds = database_manager.update_rate_sec + 60 * 15 # 15-Minute Delay For DB Update
-    )
+        seconds = database_manager.update_rate_sec + 60 * 15 # 15-Minute Delay For DataBaseManager
+        )
     scheduler.start()
 
     # Server
