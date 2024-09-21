@@ -59,7 +59,7 @@ class News(Base):
 class DataBaseManager:
     def __init__(self):
         self.crypto_id = "bitcoin"
-        self.update_rate_sec = 60 * 60 * 12 # 12-Hour Delays
+        self.update_rate_sec = 60 * 60 * 1 # 1-Hour Delays
         self.db_path = os.getenv("DB_PATH")
         self.create()
 

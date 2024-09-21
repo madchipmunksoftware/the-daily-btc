@@ -87,7 +87,7 @@ class DashBoardManager:
             go.Scatter(
                 x=fig_df["last_updated_date"], 
                 y=fig_df["price_ema200_usd"],
-                line={"color": "orange", "dash": "dash"},
+                line={"color": "springgreen", "dash": "dash"},
                 marker={"size": 12},
                 mode='lines+markers',
                 name="EMA 200"
@@ -118,7 +118,7 @@ class DashBoardManager:
             go.Scatter(
                 x=fig_df["last_updated_date"], 
                 y=fig_df["fully_diluted_valuation_usd"], 
-                line={"color": "springgreen"},
+                line={"color": "yellow"},
                 marker={"size": 12},
                 mode='lines+markers',
                 name="FULLY DILUTED"
@@ -142,7 +142,7 @@ class DashBoardManager:
             go.Bar(
                 x=fig_df["last_updated_date"], 
                 y=fig_df["total_volume_usd"],
-                marker={"color": "aqua"},
+                marker={"color": "yellow"},
                 )
             )
         fig_total_volumes.update_layout(
@@ -310,7 +310,11 @@ class DashBoardManager:
                 "ath_usd": statuses_df.loc[0, 'ath_usd'],
                 "ath_date": statuses_df.loc[0, 'ath_date'],
                 "atl_usd": statuses_df.loc[0, 'atl_usd'],
-                "atl_date": statuses_df.loc[0, 'atl_date']
+                "atl_date": statuses_df.loc[0, 'atl_date'],
+                "last_updated_timestamp": max(
+                    max(pd.to_datetime(self.news_df["published_timestamp"])), 
+                    max(pd.to_datetime(statuses_df["last_updated_timestamp"]))
+                    )
                 },
             "economics": {
                 "prices": fig_prices,
@@ -338,8 +342,13 @@ class DashBoardManager:
                         html.H1(
                             [
                                 html.Span("The Daily BTC", style={"fontSize": 48}), 
-                                html.Img(src=get_asset_url("bitcoin-icon-small.webp"), className="ps-3 pe-3 pb-3"),
+                                html.Img(src=get_asset_url("bitcoin-icon-small.webp"), className="ps-3 pe-3 pb-2"),
                                 ]
+                            ),
+                        html.P(
+                            f"""Last updated on 
+                            {dash_objects["headline"]["last_updated_timestamp"].strftime("%Y-%m-%d at %I:%M %p %Z.")}""", 
+                            style={"fontStyle": "italic", "fontSize": "12pt"}
                             )
                         ], 
                     className="row ps-4 pe-4 pt-4 pb-1 text-center"
@@ -351,10 +360,10 @@ class DashBoardManager:
                             [
                                 html.Span(f"MARKET CAP RANK: #{dash_objects["headline"]["market_cap"]}"),
                                 html.Span(f"|", className="ps-3 pe-3"),
-                                html.Span(f"""ALL-TIME HIGH PRICE: ${dash_objects["headline"]["ath_usd"]} 
+                                html.Span(f"""ALL-TIME HIGH PRICE: ${dash_objects["headline"]["ath_usd"]:,} 
                                           ON {dash_objects["headline"]["ath_date"]}"""),
                                 html.Span(f"|", className="ps-3 pe-3"),
-                                html.Span(f"""ALL-TIME LOW PRICE: ${dash_objects["headline"]["atl_usd"]} 
+                                html.Span(f"""ALL-TIME LOW PRICE: ${dash_objects["headline"]["atl_usd"]:,} 
                                           ON {dash_objects["headline"]["atl_date"]}""")
                                 ]
                             )

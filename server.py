@@ -25,7 +25,7 @@ if __name__ == "__main__":
         func = dashboard_manager.update, 
         args = [database_manager.read()],
         trigger = 'interval',
-        seconds = database_manager.update_rate_sec + 60 * 15 # 15-Minute Delay For DataBaseManager
+        seconds = database_manager.update_rate_sec + 60 * 5 # 5-Minute Delays For DB To Update
         )
     scheduler.start()
 
