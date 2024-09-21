@@ -6,15 +6,13 @@ from databasemanager import DataBaseManager
 from dashboardmanager import DashBoardManager
 from apscheduler.schedulers.background import BackgroundScheduler
 
-database_manager = DataBaseManager()
-dashboard_manager = DashBoardManager(__name__)
-
 if __name__ == "__main__":
-    # Initial Ingestion
-    # database_manager.update()
+    # Instantiate Managers
+    database_manager = DataBaseManager()
+    dashboard_manager = DashBoardManager(__name__)
     dashboard_manager.update(database_manager.read())
 
-    # Subsequent Ingestions
+    # Schedule Jobs
     scheduler = BackgroundScheduler(daemon=True)
     scheduler.add_job(
         func=database_manager.update, 
@@ -29,5 +27,5 @@ if __name__ == "__main__":
         )
     scheduler.start()
 
-    # Server
+    # Run Server
     dashboard_manager.dashboard.run_server(debug=True)

@@ -33,7 +33,7 @@ class DashBoardManager:
         return None
     
     def update_datasets(self, data_objects):
-        # ECONOMICS & SOCIALS CALCULATIONS
+        # ECONOMICS & SOCIALS CHARTS CALCULATIONS
         statuses_df = pd.DataFrame(data_objects['statuses']).dropna()
         statuses_df["last_updated_date"] = pd.to_datetime(statuses_df["last_updated_date"])
         fig_columns = [
@@ -61,7 +61,7 @@ class DashBoardManager:
         fig_df["price_ema50_usd"] = fig_df["price_usd"].ewm(span=50, adjust=False).mean()
         fig_df["price_ema200_usd"] = fig_df["price_usd"].ewm(span=200, adjust=False).mean()
 
-        # ECONOMICS PLOTS
+        # ECONOMICS CHARTS DESIGNS
         fig_prices = go.Figure()
         fig_prices.add_trace(
             go.Scatter(
@@ -87,7 +87,7 @@ class DashBoardManager:
             go.Scatter(
                 x=fig_df["last_updated_date"], 
                 y=fig_df["price_ema200_usd"],
-                line={"color": "springgreen", "dash": "dash"},
+                line={"color": "lime", "dash": "dash"},
                 marker={"size": 12},
                 mode='lines+markers',
                 name="EMA 200"
@@ -142,7 +142,7 @@ class DashBoardManager:
             go.Bar(
                 x=fig_df["last_updated_date"], 
                 y=fig_df["total_volume_usd"],
-                marker={"color": "yellow"},
+                marker={"color": "lime"},
                 )
             )
         fig_total_volumes.update_layout(
@@ -151,7 +151,7 @@ class DashBoardManager:
             title={"text": "DAILY AVERAGE TOTAL VOLUME ($)", "x": 0.5}
             )
 
-        # SOCIALS PLOTS
+        # SOCIALS CHARTS DESIGNS
         fig_github = go.Figure()
         fig_github.add_trace(
             go.Scatter(
@@ -171,9 +171,9 @@ class DashBoardManager:
                 x=fig_df["last_updated_date"], 
                 y=fig_df["github_closed_issues_count"],
                 mode="lines+text",
-                line={"color": "springgreen"},
+                line={"color": "lime"},
                 text=[f"{count:,}"for count in fig_df["github_closed_issues_count"]],
-                textfont={"color": "springgreen"},
+                textfont={"color": "lime"},
                 textposition="bottom center",
                 name="CLOSED",
                 fill='tozeroy'
@@ -210,7 +210,7 @@ class DashBoardManager:
             title={"text": "DAILY TOTAL NUMBER OF FOLLOWERS", "x": 0.5}
             )
 
-        # GENERAL PLOTS STYLINGS
+        # GENERAL CHARTS STYLINGS
         for fig_object in [fig_prices, fig_market_caps, fig_total_volumes, fig_github, fig_twitter]:
             fig_object.update_layout(
                 xaxis = {
@@ -227,56 +227,32 @@ class DashBoardManager:
                 font_color = "white"
                 )
 
-        # NEWS CALCULATIONS
-        if len(self.news_df) > 0:
-            news_df_temp = pd.DataFrame(data_objects['news']).dropna()
-            news_df_temp = (
-                news_df_temp.loc[[news_id not in self.news_df["id"].to_list() for news_id in news_df_temp['id']]]
-                )
-            if len(news_df_temp) > 0:
-                news_df_temp["published_date"] = pd.to_datetime(news_df_temp["published_date"])
-                news_df_temp["subtitle"] = (
-                    "By "+ news_df_temp["author"] + 
-                    " on " + news_df_temp["published_date"].dt.strftime("%b %d, %Y")
-                    )
-                news_df_temp["content_preview"] = (
-                    "Title: " + news_df_temp["title"] + 
-                    " Description: " + news_df_temp["description"]
-                    )
-                results = (
-                    pd.DataFrame(self.sentiment_pipeline(news_df_temp["content_preview"].to_list()))
-                    .rename(columns={"label": "sentiment_label", "score": "sentiment_score"})
-                    .replace({"LABEL_0": "NEGATIVE", "LABEL_1": "NEUTRAL", "LABEL_2": "POSITIVE"})
-                    )
-                news_df_temp = pd.concat(
-                    [news_df_temp.reset_index(drop=True), results.reset_index(drop=True)], 
-                    axis="columns",
-                    )
-                self.news_df = pd.concat(
-                    [self.news_df.reset_index(drop=True), news_df_temp.reset_index(drop=True)], 
-                    axis="index", 
-                    ignore_index=True
-                    )
-        else:
-            self.news_df = pd.DataFrame(data_objects['news']).dropna()
-            self.news_df["published_date"] = pd.to_datetime(self.news_df["published_date"])
-            self.news_df["subtitle"] = (
-                "By "+ self.news_df["author"] + 
-                " on " + self.news_df["published_date"].dt.strftime("%b %d, %Y")
-                )
-            self.news_df["content_preview"] = (
-                "Title: " + self.news_df["title"] + 
-                " Description: " + self.news_df["description"]
-                )
-            results = (
-                pd.DataFrame(self.sentiment_pipeline(self.news_df["content_preview"].to_list()))
+        # NEWS CHARTS CALCULATIONS
+        temp_news_df = pd.DataFrame(data_objects['news']).dropna()
+        temp_news_df = temp_news_df.loc[
+            [news_id not in self.news_df["id"].to_list() if len(self.news_df) > 0 else True for news_id in temp_news_df['id']]
+            ]
+        if len(temp_news_df) > 0:
+            temp_news_df["published_date"] = pd.to_datetime(temp_news_df["published_date"])
+            temp_news_df["subtitle"] = "By "+ temp_news_df["author"] + " on " + temp_news_df["published_date"].dt.strftime("%b %d, %Y")
+            temp_news_df["content_preview"] = "Title: " + temp_news_df["title"] + " Description: " + temp_news_df["description"]
+            sentiment_results = (
+                pd.DataFrame(self.sentiment_pipeline(temp_news_df["content_preview"].to_list()))
                 .rename(columns={"label": "sentiment_label", "score": "sentiment_score"})
                 .replace({"LABEL_0": "NEGATIVE", "LABEL_1": "NEUTRAL", "LABEL_2": "POSITIVE"})
                 )
-            self.news_df = pd.concat(
-                [self.news_df.reset_index(drop=True), results.reset_index(drop=True)], 
-                axis="columns"
+            temp_news_df = pd.concat(
+                [temp_news_df.reset_index(drop=True), sentiment_results.reset_index(drop=True)], 
+                axis="columns",
                 )
+            if len(self.news_df) == 0:
+                self.news_df = temp_news_df.copy()
+            else:
+                self.news_df = pd.concat(
+                    [self.news_df.reset_index(drop=True), temp_news_df.reset_index(drop=True)], 
+                    axis="index", 
+                    ignore_index=True
+                    )
         
         news_today = (
             self.news_df[self.news_df["published_date"] == pd.to_datetime(pd.Timestamp('now').date())]
@@ -603,6 +579,8 @@ class DashBoardManager:
                                         style={"width": "8vh"}
                                         ), 
                                     href="https://www.linkedin.com/in/tamleauthentic/",
+                                    target="_blank",
+                                    rel="noopener noreferrer"
                                     ),
                                 html.A(
                                     html.Img(
@@ -611,6 +589,8 @@ class DashBoardManager:
                                         style={"width": "8vh"}
                                         ),
                                     href="https://github.com/moodysquirrelapps",
+                                    target="_blank",
+                                    rel="noopener noreferrer"
                                     )
                                 ]
                             )
