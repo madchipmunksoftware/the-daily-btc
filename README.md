@@ -3,7 +3,7 @@ The purpose of this program is to host a webpage that showcases daily price acti
 
 # Implementation
 
-<img src="./assets/system-design.png">
+<img src="assets/system-design.png">
 
 Above is a visual representation of the system design. Here is a high-level overview of its implementation:
 <ol>
