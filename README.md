@@ -1,11 +1,11 @@
 # Purpose
 The purpose of this program is to host a webpage that showcases daily price actions and news for Bitcoin.
 
-# Design
+# Implementation
 
 <img src="./assets/system-design.png">
 
-Above is a visual representation of the system design. Here is a high-level overview of its implementation:
+Above is a diagram of the system. Here is an overview of its operations:
 <ol>
     <li>daily-btc.db:
         <ul>
@@ -27,7 +27,7 @@ Above is a visual representation of the system design. Here is a high-level over
     <li>server.py: A server to oversee managers and web clients' requests.</li>
 </ol>
 
-# Results
+# Conclusion
 The Daily BTC: [INSERT WEBPAGE LINK]
 
 By going to the webpage above, a user can get a quick update on recent price actions and major news for Bitcoin.
