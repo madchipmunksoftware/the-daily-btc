@@ -230,12 +230,23 @@ class DashBoardManager:
         # NEWS CHARTS CALCULATIONS
         temp_news_df = pd.DataFrame(data_objects['news']).dropna()
         temp_news_df = temp_news_df.loc[
-            [news_id not in self.news_df["id"].to_list() if len(self.news_df) > 0 else True for news_id in temp_news_df['id']]
+            [
+                news_id not in self.news_df["id"].to_list() 
+                if len(self.news_df) > 0
+                else True 
+                for news_id in temp_news_df['id']
+                ]
             ]
         if len(temp_news_df) > 0:
             temp_news_df["published_date"] = pd.to_datetime(temp_news_df["published_date"])
-            temp_news_df["subtitle"] = "By "+ temp_news_df["author"] + " on " + temp_news_df["published_date"].dt.strftime("%b %d, %Y")
-            temp_news_df["content_preview"] = "Title: " + temp_news_df["title"] + " Description: " + temp_news_df["description"]
+            temp_news_df["subtitle"] = (
+                "By "+ temp_news_df["author"] +
+                " on " + temp_news_df["published_date"].dt.strftime("%b %d, %Y")
+                )
+            temp_news_df["content_preview"] = (
+                "Title: " + temp_news_df["title"] + 
+                " Description: " + temp_news_df["description"]
+                )
             sentiment_results = (
                 pd.DataFrame(self.sentiment_pipeline(temp_news_df["content_preview"].to_list()))
                 .rename(columns={"label": "sentiment_label", "score": "sentiment_score"})
@@ -310,7 +321,7 @@ class DashBoardManager:
         return dash_objects
 
     def update_dashboard(self, dash_objects):
-        self.dashboard.layout = html.Div(
+        dashboard_layout = html.Div(
             [
                 # HEADER SECTION
                 html.Div(
@@ -601,9 +612,9 @@ class DashBoardManager:
                 ], 
             className="container-fluid bg-dark text-white"
             )
-        return None
+        return dashboard_layout
 
     def update(self, data_objects):
         dash_objects = self.update_datasets(data_objects)
-        self.update_dashboard(dash_objects)
+        self.dashboard.layout = self.update_dashboard(dash_objects)
         return None

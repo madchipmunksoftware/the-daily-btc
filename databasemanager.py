@@ -59,7 +59,7 @@ class News(Base):
 class DataBaseManager:
     def __init__(self):
         self.crypto_id = "bitcoin"
-        self.update_rate_sec = 60 * 60 * 1 # 1-Hour Delays
+        self.update_rate_sec = 60 * 60 * 1 # 1-Hour Delays Between API Calls
         self.db_path = os.getenv("DB_PATH")
         self.create()
 
@@ -127,7 +127,10 @@ class DataBaseManager:
                 news_rows_list.append(news_row)
             
             # DATA OBJECTS
-            data_objects = {'statuses': statuses_rows_list, 'news': news_rows_list}
+            data_objects = {
+                'statuses': statuses_rows_list,
+                'news': news_rows_list
+                }
             return data_objects
 
     def update(self):
@@ -180,7 +183,7 @@ class DataBaseManager:
             url=self.news_api_endpoint, 
             params={
                 "q": self.crypto_id,
-                "searchIn": "title",
+                "searchIn": "title,description",
                 "language": "en",
                 "from": (dt.datetime.now() - dt.timedelta(1)).strftime("%Y-%m-%d") + "T00:00:00",
                 "to": dt.datetime.now().strftime("%Y-%m-%d") + "T00:00:00"
