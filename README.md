@@ -1,7 +1,7 @@
 # Purpose
 The purpose of this program is to host a webpage that showcases daily price actions and news for Bitcoin.
 
-# Implementation
+# Design
 
 <img src="./assets/system-design.png">
 
