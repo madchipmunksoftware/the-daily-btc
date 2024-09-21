@@ -3,7 +3,7 @@ The purpose of this program is to host a webpage that showcases daily price acti
 
 # Implementation
 
-<img src="assets/system-design.png">
+<img src="./assets/system-design.png">
 
 Above is a visual representation of the system design. Here is a high-level overview of its implementation:
 <ol>
@@ -32,8 +32,7 @@ The Daily BTC: [INSERT WEBPAGE LINK]
 
 By going to the webpage above, a user can get a quick update on recent price actions and major news for Bitcoin.
 
-# Suggestions
-Here are some rooms for future improvement:
+Here are some areas for improvement:
 <ol>
     <li>API Rates: The website is updated once per hour because of the APIs' free plans limitations. For more granularity and frequent updates, APIs' paid plans are required.</li>
     <li>Machine Learning:</li>
