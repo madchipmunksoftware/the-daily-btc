@@ -94,8 +94,12 @@ class DashBoardManager:
                 )
             )
         fig_prices.update_layout(
-            xaxis={"title": "DATE"},
-            yaxis={"range": [min(fig_df["price_usd"]) * 0.95, max(fig_df["price_usd"]) * 1.05]},
+            xaxis={"showline": True, "showgrid": False, "title": "DATE"},
+            yaxis={
+                "showline": True, 
+                "showgrid": False, 
+                "range": [min(fig_df["price_usd"]) * 0.95, max(fig_df["price_usd"]) * 1.05]
+                },
             title={"text": "DAILY AVERAGE PRICE ($)", "x": 0.5}
             )
 
@@ -121,8 +125,10 @@ class DashBoardManager:
                 )
             )
         fig_market_caps.update_layout(
-            xaxis={"title": "DATE"},
+            xaxis={"showline": True, "showgrid": False, "title": "DATE"},
             yaxis={
+                "showline": True,
+                "showgrid": False,
                 "range": [
                     min(fig_df["market_cap_usd"]) * 0.95, 
                     max(fig_df["fully_diluted_valuation_usd"]) * 1.05
@@ -133,22 +139,15 @@ class DashBoardManager:
 
         fig_total_volumes = go.Figure()
         fig_total_volumes.add_trace(
-            go.Scatter(
+            go.Bar(
                 x=fig_df["last_updated_date"], 
                 y=fig_df["total_volume_usd"],
-                line={"color": "red"},
-                marker={"size": 12},
-                mode='lines+markers'
+                marker={"color": "aqua"},
                 )
             )
         fig_total_volumes.update_layout(
             xaxis={"title": "DATE"},
-            yaxis={
-                "range": [
-                    min(fig_df["total_volume_usd"]) * 0.95, 
-                    max(fig_df["total_volume_usd"]) * 1.05
-                    ]
-                },
+            yaxis={"range": [0, max(fig_df["total_volume_usd"]) * 1.05]},
             title={"text": "DAILY AVERAGE TOTAL VOLUME ($)", "x": 0.5}
             )
 
@@ -160,7 +159,7 @@ class DashBoardManager:
                 y=fig_df["github_total_issues_count"],
                 mode="lines+text",
                 line={"color": "red"},
-                text=fig_df["github_total_issues_count"].astype("str"),
+                text=[f"{count:,}"for count in fig_df["github_total_issues_count"]],
                 textfont={"color": "red"},
                 textposition="top center",
                 name="OPENED",
@@ -173,7 +172,7 @@ class DashBoardManager:
                 y=fig_df["github_closed_issues_count"],
                 mode="lines+text",
                 line={"color": "springgreen"},
-                text=fig_df["github_closed_issues_count"].astype("str"),
+                text=[f"{count:,}"for count in fig_df["github_closed_issues_count"]],
                 textfont={"color": "springgreen"},
                 textposition="bottom center",
                 name="CLOSED",
@@ -183,7 +182,7 @@ class DashBoardManager:
         fig_github.update_layout(
             xaxis={"showgrid": False, "title": "DATE"},
             yaxis={"showgrid": False, "showticklabels": False},
-            title = {"text": "DAILY COUNT OF ISSUES", "x": 0.5}
+            title = {"text": "DAILY TOTAL NUMBER OF ISSUES", "x": 0.5}
             )
 
         fig_twitter = go.Figure()
@@ -191,29 +190,29 @@ class DashBoardManager:
             go.Scatter(
                 x=fig_df["last_updated_date"], 
                 y=fig_df["twitter_followers_count"],
-                mode='markers',
-                marker={"color": "yellow", "size": 12}
+                mode='markers+text',
+                marker={"color": "yellow", "size": 12},
+                text=[f"{count:,}"for count in fig_df["twitter_followers_count"]],
+                textfont={"color": "yellow"},
+                textposition="top center"
                 )
             )
         fig_twitter.update_layout(
             xaxis={"showline": True, "showgrid": False, "title": "DATE" },
             yaxis={
+                "showgrid": False, 
+                "showticklabels": False,
                 "range": [
                     min(fig_df["twitter_followers_count"]) * 0.95, 
                     max(fig_df["twitter_followers_count"]) * 1.05
                     ]
                 },
-            title={"text": "DAILY COUNT OF FOLLOWERS", "x": 0.5}
+            title={"text": "DAILY TOTAL NUMBER OF FOLLOWERS", "x": 0.5}
             )
 
         # GENERAL PLOTS STYLINGS
         for fig_object in [fig_prices, fig_market_caps, fig_total_volumes, fig_github, fig_twitter]:
             fig_object.update_layout(
-                {
-                    "plot_bgcolor": "darkslategray", 
-                    "paper_bgcolor": "darkslategray", 
-                    "font_color": "white",
-                    },
                 xaxis = {
                     "tickformat": "%b %d, %Y",
                     "tickangle": 90,
@@ -222,7 +221,10 @@ class DashBoardManager:
                         min(fig_df["last_updated_date"]) - pd.DateOffset(days=1), 
                         max(fig_df["last_updated_date"]) + pd.DateOffset(days=1)
                         ]
-                    }
+                    },
+                plot_bgcolor = "#227B94",
+                paper_bgcolor = "#227B94",
+                font_color = "white"
                 )
 
         # NEWS CALCULATIONS
@@ -335,12 +337,12 @@ class DashBoardManager:
                     [
                         html.H1(
                             [
-                                "The Daily BTC", 
-                                html.Img(src=get_asset_url("bitcoin-icon-small.webp"), className="p-2")
+                                html.Span("The Daily BTC", style={"fontSize": 48}), 
+                                html.Img(src=get_asset_url("bitcoin-icon-small.webp"), className="ps-3 pe-3 pb-3"),
                                 ]
                             )
                         ], 
-                    className="row p-2 text-center"
+                    className="row ps-4 pe-4 pt-4 pb-1 text-center"
                     ),
                 # HEADLINE SECTION
                 html.Div(
@@ -357,7 +359,7 @@ class DashBoardManager:
                                 ]
                             )
                         ], 
-                    className="row text-center"
+                    className="row ps-4 pe-4 text-center"
                     ),
                 # NEWS & CHARTS SECTION
                 html.Div(
@@ -378,10 +380,10 @@ class DashBoardManager:
                                                     className="text-white pt-1",
                                                     style={"backgroundColor": "#16325B"},
                                                     selected_style={
-                                                        "backgroundColor": "#78B7D0", 
+                                                        "backgroundColor": "#227B94", 
                                                         "borderTop": "1vh solid white"
                                                         }
-                                                        ),
+                                                    ),
                                                 dcc.Tab(
                                                     dcc.Graph(
                                                         figure=dash_objects["economics"]["market_caps"], 
@@ -391,10 +393,10 @@ class DashBoardManager:
                                                     className="text-white pt-1",
                                                     style={"backgroundColor": "#16325B"},
                                                     selected_style={
-                                                        "backgroundColor": "#78B7D0", 
+                                                        "backgroundColor": "#227B94", 
                                                         "borderTop": "1vh solid white"
                                                         }
-                                                        ),
+                                                    ),
                                                 dcc.Tab(
                                                     dcc.Graph(
                                                         figure=dash_objects["economics"]["total_volumes"], 
@@ -404,15 +406,15 @@ class DashBoardManager:
                                                     className="text-white pt-1",
                                                     style={"backgroundColor": "#16325B"},
                                                     selected_style={
-                                                        "backgroundColor": "#78B7D0", 
+                                                        "backgroundColor": "#227B94", 
                                                         "borderTop": "1vh solid white"
                                                         }
-                                                        )
-                                                ], 
+                                                    )
+                                                ],
                                             style={"height": "5vh"}
                                             )
                                         ], 
-                                    className="col"
+                                    className="col pb-5"
                                     ),
                                 html.Div( # SOCIAL CHARTS SECTION
                                     [
@@ -428,10 +430,10 @@ class DashBoardManager:
                                                     className="text-white pt-1", 
                                                     style={"backgroundColor": "#16325B"},
                                                     selected_style={
-                                                        "backgroundColor": "#78B7D0", 
+                                                        "backgroundColor": "#227B94", 
                                                         "borderTop": "1vh solid white"
-                                                        }
-                                                        ),
+                                                        },
+                                                    ),
                                                 dcc.Tab(
                                                     dcc.Graph(
                                                         figure=dash_objects["socials"]["twitter"], 
@@ -441,153 +443,141 @@ class DashBoardManager:
                                                     className="text-white pt-1", 
                                                     style={"backgroundColor": "#16325B"},
                                                     selected_style={
-                                                        "backgroundColor": "#78B7D0", 
+                                                        "backgroundColor": "#227B94", 
                                                         "borderTop": "1vh solid white"
-                                                        }
-                                                        ),
+                                                        },
+                                                    ),
                                                 ], 
                                             style={"height": "5vh"}
                                             )
                                         ], 
-                                    className="col pt-4"
+                                    className="col pb-5"
                                     )
                                 ], 
-                            className="col-8 ps-4 pe-4"
+                            className="col-md-8 pe-4"
                             ),
                         html.Div( # NEWS SECTION
                             [
                                 html.P("MAJOR NEWS"),
                                 html.Div( # TODAY POST
-                                    [
+                                    html.Div(
                                         html.Div(
                                             [
-                                                html.Div(
+                                                html.P(
+                                                    "TODAY", 
+                                                    className="text-center", 
+                                                    style={"backgroundColor": "red"}
+                                                    ),
+                                                html.P(
                                                     [
-                                                        html.P(
-                                                            "TODAY", 
-                                                            className="text-center", 
-                                                            style={"backgroundColor": "red"}
+                                                        html.Div(
+                                                            html.Img(
+                                                                src=dash_objects["news"]["today"]["url_to_image"], 
+                                                                className="mx-auto w-100",
+                                                                ),
+                                                            className="d-flex align-items-center"
                                                             ),
-                                                        html.P(
-                                                            [
-                                                                html.Div(
-                                                                    html.Img(
-                                                                        src=dash_objects["news"]["today"]["url_to_image"], 
-                                                                        className="mx-auto w-100",
-                                                                        ),
-                                                                    className="d-flex align-items-center"
-                                                                    ),
-                                                                html.A(
-                                                                    dash_objects["news"]["today"]["title"], 
-                                                                    href=dash_objects["news"]["today"]["url_to_post"],
-                                                                    target="_blank",
-                                                                    rel="noopener noreferrer"
-                                                                    ),
-                                                                html.Br(),
-                                                                html.Span(
-                                                                    dash_objects["news"]["today"]["subtitle"], 
-                                                                    style={"fontStyle": "italic"}
-                                                                    )
-                                                                ]
+                                                        html.A(
+                                                            dash_objects["news"]["today"]["title"], 
+                                                            href=dash_objects["news"]["today"]["url_to_post"],
+                                                            target="_blank",
+                                                            rel="noopener noreferrer"
+                                                            ),
+                                                        html.Br(),
+                                                        html.Span(
+                                                            dash_objects["news"]["today"]["subtitle"], 
+                                                            style={"fontStyle": "italic"}
                                                             )
-                                                        ],
-                                                    className="col ps-2 pe-2 pt-2"
+                                                        ]
                                                     )
                                                 ],
-                                            className="row border rounded"
+                                            className="col p-2"
                                             ),
-                                        ],
-                                    className="col ps-2 pe-2 pb-4"
+                                        className="row border rounded"
+                                        ),
+                                    className="col pb-5"
                                     ),
                                 html.Div( # THIS WEEK POST
-                                    [
+                                    html.Div(
                                         html.Div(
                                             [
-                                                html.Div(
+                                                html.P(
+                                                    "THIS WEEK", 
+                                                    className="text-center", 
+                                                    style={"backgroundColor": "red"}
+                                                    ),
+                                                html.P(
                                                     [
-                                                        html.P(
-                                                            "THIS WEEK", 
-                                                            className="text-center", 
-                                                            style={"backgroundColor": "red"}
+                                                        html.Div(
+                                                            html.Img(
+                                                                src=dash_objects["news"]["this_week"]["url_to_image"], 
+                                                                className="mx-auto w-100",
+                                                                ),
+                                                            className="d-flex align-items-center"
                                                             ),
-                                                        html.P(
-                                                            [
-                                                                html.Div(
-                                                                    html.Img(
-                                                                        src=dash_objects["news"]["this_week"]["url_to_image"], 
-                                                                        className="mx-auto w-100",
-                                                                        ),
-                                                                    className="d-flex align-items-center"
-                                                                    ),
-                                                                html.A(
-                                                                    dash_objects["news"]["this_week"]["title"], 
-                                                                    href=dash_objects["news"]["this_week"]["url_to_post"],
-                                                                    target="_blank",
-                                                                    rel="noopener noreferrer"
-                                                                    ),
-                                                                html.Br(),
-                                                                html.Span(
-                                                                    dash_objects["news"]["this_week"]["subtitle"], 
-                                                                    style={"fontStyle": "italic"}
-                                                                    )
-                                                                ]
+                                                        html.A(
+                                                            dash_objects["news"]["this_week"]["title"], 
+                                                            href=dash_objects["news"]["this_week"]["url_to_post"],
+                                                            target="_blank",
+                                                            rel="noopener noreferrer"
+                                                            ),
+                                                        html.Br(),
+                                                        html.Span(
+                                                            dash_objects["news"]["this_week"]["subtitle"], 
+                                                            style={"fontStyle": "italic"}
                                                             )
-                                                        ],
-                                                    className="col ps-2 pe-2 pt-2"
+                                                        ]
                                                     )
                                                 ],
-                                            className="row border rounded"
+                                            className="col p-2"
                                             ),
-                                        ],
-                                    className="col ps-2 pe-2 pb-4"
+                                        className="row border rounded"
+                                        ),
+                                    className="col pb-5"
                                     ),
                                 html.Div(  # THIS MONTH POST
-                                    [
+                                    html.Div(
                                         html.Div(
                                             [
-                                                html.Div(
+                                                html.P(
+                                                    "THIS MONTH", 
+                                                    className="text-center", 
+                                                    style={"backgroundColor": "red"}
+                                                    ),
+                                                html.P(
                                                     [
-                                                        html.P(
-                                                            "THIS MONTH", 
-                                                            className="text-center", 
-                                                            style={"backgroundColor": "red"}
+                                                        html.Div(
+                                                            html.Img(
+                                                                src=dash_objects["news"]["this_month"]["url_to_image"], 
+                                                                className="mx-auto w-100",
+                                                                ),
+                                                            className="d-flex align-items-center"
                                                             ),
-                                                        html.P(
-                                                            [
-                                                                html.Div(
-                                                                    html.Img(
-                                                                        src=dash_objects["news"]["this_month"]["url_to_image"], 
-                                                                        className="mx-auto w-100",
-                                                                        ),
-                                                                    className="d-flex align-items-center"
-                                                                    ),
-                                                                html.A(
-                                                                    dash_objects["news"]["this_month"]["title"], 
-                                                                    href=dash_objects["news"]["this_month"]["url_to_post"],
-                                                                    target="_blank",
-                                                                    rel="noopener noreferrer"
-                                                                    ),
-                                                                html.Br(),
-                                                                html.Span(
-                                                                    dash_objects["news"]["this_month"]["subtitle"], 
-                                                                    style={"fontStyle": "italic"}
-                                                                    )
-                                                                ]
+                                                        html.A(
+                                                            dash_objects["news"]["this_month"]["title"], 
+                                                            href=dash_objects["news"]["this_month"]["url_to_post"],
+                                                            target="_blank",
+                                                            rel="noopener noreferrer"
+                                                            ),
+                                                        html.Br(),
+                                                        html.Span(
+                                                            dash_objects["news"]["this_month"]["subtitle"], 
+                                                            style={"fontStyle": "italic"}
                                                             )
-                                                        ],
-                                                    className="col ps-2 pe-2 pt-2"
+                                                        ]
                                                     )
                                                 ],
-                                            className="row border rounded"
+                                            className="col p-2"
                                             ),
-                                        ],
-                                    className="col ps-2 pe-2 pb-4"
+                                        className="row border rounded"
+                                        ),
+                                    className="col pb-5"
                                     ),
                                 ], 
-                            className="col-4 ps-4 pe-4"
+                            className="col-md-4 ps-4"
                             )
                         ], 
-                    className="row ps-4 pe-4 pt-2 pb-2"
+                    className="row ps-4 pe-4 pt-4"
                     ),
                 html.Div( # FOOTER SECTION
                     [
@@ -601,7 +591,7 @@ class DashBoardManager:
                                     html.Img(
                                         src=get_asset_url("linkedin_icon.png"), 
                                         className="p-2", 
-                                        style={"width": "6vh"}
+                                        style={"width": "8vh"}
                                         ), 
                                     href="https://www.linkedin.com/in/tamleauthentic/",
                                     ),
@@ -609,15 +599,15 @@ class DashBoardManager:
                                     html.Img(
                                         src=get_asset_url("github_icon.png"), 
                                         className="p-2", 
-                                        style={"width": "6vh"}
+                                        style={"width": "8vh"}
                                         ),
                                     href="https://github.com/moodysquirrelapps",
                                     )
                                 ]
                             )
                         ], 
-                    className="row p-4",
-                    style={"fontStyle": "italic", "fontSize": "11pt", "textAlign": "right", "justify-content": "right"}
+                    className="row ps-4 pe-4 pb-4",
+                    style={"fontStyle": "italic", "fontSize": "12pt", "textAlign": "right", "justify-content": "right"}
                     ),
                 ], 
             className="container-fluid bg-dark text-white"
