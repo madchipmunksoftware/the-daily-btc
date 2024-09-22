@@ -7,12 +7,13 @@ from dashboardmanager import DashBoardManager
 from apscheduler.schedulers.background import BackgroundScheduler
 
 if __name__ == "__main__":
-    # Instantiate Managers
+    # Instantiate Managers With Latest Data
     database_manager = DataBaseManager()
     dashboard_manager = DashBoardManager(__name__)
+    database_manager.update()
     dashboard_manager.update(database_manager.read())
 
-    # Schedule Tasks
+    # Schedule Background Tasks
     scheduler = BackgroundScheduler(daemon=True)
     scheduler.add_job(
         func=database_manager.update, 
@@ -27,5 +28,5 @@ if __name__ == "__main__":
         )
     scheduler.start()
 
-    # Run Server
+    # Run Dashboard Server
     dashboard_manager.dashboard.run_server()
