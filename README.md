@@ -27,7 +27,7 @@ Above is a diagram of the system. Here is an overview of its operations:
     <li>server.py: A server to oversee managers and web clients' requests.</li>
 </ol>
 
-# Conclusion
+# Results
 The Daily BTC: [INSERT WEBPAGE LINK]
 
 By going to the webpage above, a user can get a quick update on recent price actions and major news for Bitcoin.

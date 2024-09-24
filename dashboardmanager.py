@@ -157,11 +157,8 @@ class DashBoardManager:
             go.Scatter(
                 x=fig_df["last_updated_date"], 
                 y=fig_df["github_total_issues_count"],
-                mode="lines+text",
+                mode="lines",
                 line={"color": "red"},
-                text=[f"{count:,}"for count in fig_df["github_total_issues_count"]],
-                textfont={"color": "red"},
-                textposition="top center",
                 name="OPENED",
                 fill='tozeroy'
                 )
@@ -170,13 +167,34 @@ class DashBoardManager:
             go.Scatter(
                 x=fig_df["last_updated_date"], 
                 y=fig_df["github_closed_issues_count"],
-                mode="lines+text",
+                mode="lines",
                 line={"color": "lime"},
-                text=[f"{count:,}"for count in fig_df["github_closed_issues_count"]],
-                textfont={"color": "lime"},
-                textposition="bottom center",
                 name="CLOSED",
                 fill='tozeroy'
+                )
+            )
+        fig_github.add_trace(
+            go.Scatter(
+                x=[fig_df["last_updated_date"].tolist()[-1]], 
+                y=[fig_df["github_total_issues_count"].tolist()[-1]],
+                mode="lines+text",
+                line={"color": "red"},
+                text=[f"{fig_df["github_total_issues_count"].tolist()[-1]:,}"],
+                textfont={"color": "red", "size": 12},
+                textposition="middle right",
+                showlegend=False
+                )
+            )
+        fig_github.add_trace(
+            go.Scatter(
+                x=[fig_df["last_updated_date"].tolist()[-1]], 
+                y=[fig_df["github_closed_issues_count"].tolist()[-1]],
+                mode="lines+text",
+                line={"color": "lime"},
+                text=[f"{fig_df["github_closed_issues_count"].tolist()[-1]:,}"],
+                textfont={"color": "lime", "size": 12},
+                textposition="middle right",
+                showlegend=False
                 )
             )
         fig_github.update_layout(
@@ -190,9 +208,28 @@ class DashBoardManager:
             go.Scatter(
                 x=fig_df["last_updated_date"], 
                 y=fig_df["twitter_followers_count"],
+                mode='markers',
+                marker={"color": "yellow", "size": 12},
+                )
+            )
+        fig_twitter.add_trace(
+            go.Scatter(
+                x=[fig_df["last_updated_date"].tolist()[0]], 
+                y=[fig_df["twitter_followers_count"].tolist()[0]],
                 mode='markers+text',
                 marker={"color": "yellow", "size": 12},
-                text=[f"{count:,}"for count in fig_df["twitter_followers_count"]],
+                text=[f"{fig_df["twitter_followers_count"].tolist()[0]:,}"],
+                textfont={"color": "yellow"},
+                textposition="bottom center"
+                )
+            )
+        fig_twitter.add_trace(
+            go.Scatter(
+                x=[fig_df["last_updated_date"].tolist()[-1]], 
+                y=[fig_df["twitter_followers_count"].tolist()[-1]],
+                mode='markers+text',
+                marker={"color": "yellow", "size": 12},
+                text=[f"{fig_df["twitter_followers_count"].tolist()[-1]:,}"],
                 textfont={"color": "yellow"},
                 textposition="top center"
                 )
@@ -207,7 +244,8 @@ class DashBoardManager:
                     max(fig_df["twitter_followers_count"]) * 1.05
                     ]
                 },
-            title={"text": "DAILY TOTAL NUMBER OF FOLLOWERS", "x": 0.5}
+            title={"text": "DAILY TOTAL NUMBER OF FOLLOWERS", "x": 0.5},
+            showlegend=False
             )
 
         # GENERAL CHARTS STYLINGS
