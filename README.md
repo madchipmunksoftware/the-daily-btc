@@ -34,11 +34,11 @@ By going to the webpage above, a user can get a quick update on recent price act
 
 Here are some areas for improvement:
 <ol>
-    <li>API Rates: The website is updated once per hour because of the APIs' free plans limitations. For more granularity and frequent updates, APIs' paid plans are required.</li>
+    <li>API Rates: The website is updated once per hour because of the APIs' free plans limitations. For more granularity and frequency, APIs' paid plans are required.</li>
     <li>Machine Learning:</li>
     <ul>
-        <li>Sentiment analysis is performed on each new's title and description because the new's content, in the News API free plan, is truncated.</li>
-        <li>Economic charts can benefit from, say, a linear regression model to determine whether or not Bitcoin is "Bullish" or "Bearish" for a given day.</li>
+        <li>Sentiment analysis is performed on each new's title and description because the new's content, in the News API free plan, is often incomplete.</li>
+        <li>Economic charts can benefit from, say, a linear regression model to determine whether or not Bitcoin is "Bullish" or "Bearish" for the current day.</li>
     </ul>
     </li>
 </ol>
