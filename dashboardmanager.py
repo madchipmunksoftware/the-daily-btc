@@ -220,7 +220,7 @@ class DashBoardManager:
                 marker={"color": "yellow", "size": 12},
                 text=[f"{fig_df["twitter_followers_count"].tolist()[0]:,}"],
                 textfont={"color": "yellow"},
-                textposition="bottom center"
+                textposition="top center"
                 )
             )
         fig_twitter.add_trace(
