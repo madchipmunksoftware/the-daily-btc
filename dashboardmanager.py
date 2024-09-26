@@ -9,10 +9,11 @@ import plotly.graph_objects as go
 from transformers import pipeline
 
 class DashBoardManager:
-    def __init__(self, special_name_main_script):
+    def __init__(self, app):
         self.dashboard = Dash(
-            special_name_main_script, 
-            external_stylesheets=[dbc.themes.BOOTSTRAP]
+            server=app,
+            external_stylesheets=[dbc.themes.BOOTSTRAP],
+            routes_pathname_prefix="/home/"
             )
         self.dashboard.title = "The Daily BTC"
         self.dashboard._favicon = "favicon.ico"
