@@ -1,5 +1,5 @@
 """
-Purpose: The Daily BTC Web Application.
+Purpose: Implementation for The Daily BTC Web Application.
 """
 
 from flask import Flask, redirect
@@ -36,5 +36,5 @@ scheduler.add_job(
 scheduler.start()
 
 if __name__ == "__main__":
-    # Run Server
-    app.run(host="0.0.0.0", port="5000")
+    # Development Server
+    app.run(host="0.0.0.0", port=5000)
