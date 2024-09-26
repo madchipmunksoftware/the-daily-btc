@@ -24,11 +24,13 @@ Above is a diagram of the system. Here is an overview of its operations:
             <li>Built on Dash, HTML and CSS(Bootstrap).</li>
         </ul>
     </li>
-    <li>server.py: A server to oversee managers and web clients' requests.</li>
+    <li>app.py: The Web Application that also oversees the managers.</li>
+    <li>wsgi.py: A WSGI built on Gunicorn.</li>
+    <li>Nginx: A Web Server.</li>
 </ol>
 
 # Results
-The Daily BTC: [INSERT WEBPAGE LINK]
+The Daily BTC: <a href="www.thedailybtc.online" target="_blank" rel="noopener noreferrer">www.thedailybtc.online</a>
 
 By going to the webpage above, a user can get a quick update on recent price actions and major news for Bitcoin.
 
