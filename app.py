@@ -24,7 +24,7 @@ dashboard_manager.update(database_manager.read())
 scheduler = BackgroundScheduler(daemon=True)
 scheduler.add_job(
     func=database_manager.update, 
-    trigger='interval', 
+    trigger='interval',
     seconds=database_manager.update_rate_sec
     )
 scheduler.add_job(
