@@ -108,6 +108,7 @@ class DataBaseManager:
                     "github_pull_request_contributors_count": statuses_query_result[0].github_pull_request_contributors_count
                     }
                 statuses_rows_list.append(statuses_row)
+            session.rollback()
 
             # NEWS TABLE
             news_rows_list = []
@@ -125,12 +126,13 @@ class DataBaseManager:
                     "published_date": news_query_result[0].published_date
                     }
                 news_rows_list.append(news_row)
-            
-            # DATA OBJECTS
-            data_objects = {
-                'statuses': statuses_rows_list,
-                'news': news_rows_list
-                }
+            session.rollback()
+
+        # DATA OBJECTS
+        data_objects = {
+            'statuses': statuses_rows_list,
+            'news': news_rows_list
+            }
         return data_objects
 
     def update(self):
@@ -177,6 +179,8 @@ class DataBaseManager:
             if len(results) == 0:
                 session.execute(insert(Statuses), new_entry_statuses)
                 session.commit()
+            else:
+                session.rollback()
 
         # News API
         response_news = requests.get(
@@ -217,4 +221,6 @@ class DataBaseManager:
                 if len(results) == 0:
                     session.execute(insert(News), new_entry_news)
                     session.commit()
+                else:
+                    session.rollback()
         return None
