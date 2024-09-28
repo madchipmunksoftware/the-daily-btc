@@ -131,7 +131,7 @@ class DataBaseManager:
                 'statuses': statuses_rows_list,
                 'news': news_rows_list
                 }
-            return data_objects
+        return data_objects
 
     def update(self):
         # CoinGecko API
