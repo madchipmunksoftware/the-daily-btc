@@ -81,13 +81,12 @@ class DataBaseManager:
 
     def read(self):
         with Session(self.engine) as session:
-            # REFRESH TABLE OBJECTS
-            session.refresh(Statuses)
-            session.refresh(News)
-
             # STATUSES TABLE
             statuses_rows_list = []
-            statuses_query_results = session.execute(select(Statuses)).all()
+            statuses_query_results = session.execute(
+                select(Statuses)
+                .execution_options(populate_existing=True)
+                ).all()
             for statuses_query_result in statuses_query_results:
                 statuses_row = {
                     "id": statuses_query_result[0].id,
@@ -115,7 +114,10 @@ class DataBaseManager:
 
             # NEWS TABLE
             news_rows_list = []
-            news_query_results = session.execute(select(News)).all()
+            news_query_results = session.execute(
+                select(News)
+                .execution_options(populate_existing=True)
+                ).all()
             for news_query_result in news_query_results:
                 news_row = {
                     "id": news_query_result[0].id,
