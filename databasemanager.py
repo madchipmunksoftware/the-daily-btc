@@ -81,8 +81,9 @@ class DataBaseManager:
 
     def read(self):
         with Session(self.engine) as session:
-            # REFRESH DB OBJECTS
-            session.commit()
+            # REFRESH TABLE OBJECTS
+            session.refresh(Statuses)
+            session.refresh(News)
 
             # STATUSES TABLE
             statuses_rows_list = []
