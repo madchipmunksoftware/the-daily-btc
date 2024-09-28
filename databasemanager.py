@@ -6,7 +6,6 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, ForeignKey, select, insert
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
-from sqlalchemy.pool import NullPool
 from typing import Optional, List
 import requests
 import datetime as dt
@@ -76,7 +75,7 @@ class DataBaseManager:
         return None
 
     def create(self):
-        self.engine = create_engine(f"sqlite:///{self.db_path}", isolation_level="AUTOCOMMIT", poolclass=NullPool)
+        self.engine = create_engine(f"sqlite:///{self.db_path}")
         Base.metadata.create_all(self.engine)
         return None
 
