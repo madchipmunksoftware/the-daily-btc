@@ -76,7 +76,7 @@ class DataBaseManager:
         return None
 
     def create(self):
-        self.engine = create_engine(f"sqlite:///{self.db_path}", isolation_level="READ COMMITTED", poolclass=NullPool)
+        self.engine = create_engine(f"sqlite:///{self.db_path}", isolation_level="AUTOCOMMIT", poolclass=NullPool)
         Base.metadata.create_all(self.engine)
         return None
 
