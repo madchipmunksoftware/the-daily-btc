@@ -77,9 +77,14 @@ class DataBaseManager:
     def create(self):
         self.engine = create_engine(f"sqlite:///{self.db_path}")
         Base.metadata.create_all(self.engine)
+        self.engine.dispose()
         return None
 
     def read(self):
+        # Open DB
+        self.engine = create_engine(f"sqlite:///{self.db_path}")
+
+        # Query Data
         with Session(self.engine) as session:
             # STATUSES TABLE
             statuses_rows_list = []
@@ -131,9 +136,15 @@ class DataBaseManager:
                 'statuses': statuses_rows_list,
                 'news': news_rows_list
                 }
+        
+        # Close DB
+        self.engine.dispose()
         return data_objects
 
     def update(self):
+        # Open DB
+        self.engine = create_engine(f"sqlite:///{self.db_path}")
+
         # CoinGecko API
         response_coingecko = requests.get(
             url=self.coingecko_api_endpoint, 
@@ -217,4 +228,7 @@ class DataBaseManager:
                 if len(results) == 0:
                     session.execute(insert(News), new_entry_news)
                     session.commit()
+
+        # Close DB
+        self.engine.dispose()
         return None
