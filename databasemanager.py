@@ -83,7 +83,6 @@ class DataBaseManager:
         with Session(self.engine) as session:
             # STATUSES TABLE
             statuses_rows_list = []
-            session.commit()
             statuses_query_results = session.execute(select(Statuses)).all()
             for statuses_query_result in statuses_query_results:
                 statuses_row = {
@@ -109,10 +108,10 @@ class DataBaseManager:
                     "github_pull_request_contributors_count": statuses_query_result[0].github_pull_request_contributors_count
                     }
                 statuses_rows_list.append(statuses_row)
+            session.commit()
 
             # NEWS TABLE
             news_rows_list = []
-            session.commit()
             news_query_results = session.execute(select(News)).all()
             for news_query_result in news_query_results:
                 news_row = {
@@ -127,6 +126,7 @@ class DataBaseManager:
                     "published_date": news_query_result[0].published_date
                     }
                 news_rows_list.append(news_row)
+            session.commit()
 
         # DATA OBJECTS
         data_objects = {
@@ -170,7 +170,6 @@ class DataBaseManager:
             }
 
         with Session(self.engine) as session:
-            session.commit()
             results = (
                 session.execute(
                     select(Statuses)
@@ -179,7 +178,7 @@ class DataBaseManager:
                 )
             if len(results) == 0:
                 session.execute(insert(Statuses), new_entry_statuses)
-                session.commit()
+            session.commit()
 
         # News API
         response_news = requests.get(
@@ -211,7 +210,6 @@ class DataBaseManager:
                     "published_timestamp": news["publishedAt"],
                     "published_date": news["publishedAt"].split("T")[0]
                     }
-                session.commit()
                 results = (
                     session.execute(
                         select(News)
@@ -220,5 +218,5 @@ class DataBaseManager:
                     )
                 if len(results) == 0:
                     session.execute(insert(News), new_entry_news)
-                    session.commit()
+                session.commit()
         return None
