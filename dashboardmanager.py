@@ -9,7 +9,8 @@ import plotly.graph_objects as go
 from transformers import pipeline
 
 class DashBoardManager:
-    def __init__(self, app):
+    def __init__(self, app, data_objects):
+        # PARAMETERS
         self.dashboard = Dash(
             server=app,
             external_stylesheets=[dbc.themes.BOOTSTRAP],
@@ -17,6 +18,8 @@ class DashBoardManager:
             )
         self.dashboard.title = "The Daily BTC"
         self.dashboard._favicon = "favicon.ico"
+
+        # CALCULATIONS
         self.sentiment_pipeline = pipeline(
             task="sentiment-analysis", 
             model="cardiffnlp/twitter-roberta-base-sentiment"
@@ -31,6 +34,9 @@ class DashBoardManager:
             "url_to_image": "",
             "published_date": ""
             }
+        
+        # LAYOUT
+        self.update(data_objects)
         return None
     
     def update_datasets(self, data_objects):
@@ -359,7 +365,7 @@ class DashBoardManager:
             }
         return dash_objects
 
-    def update_dashboard(self, dash_objects):
+    def update_layout(self, dash_objects):
         dashboard_layout = html.Div(
             [
                 # HEADER SECTION
@@ -655,5 +661,5 @@ class DashBoardManager:
 
     def update(self, data_objects):
         dash_objects = self.update_datasets(data_objects)
-        self.dashboard.layout = self.update_dashboard(dash_objects)
+        self.dashboard.layout = self.update_layout(dash_objects)
         return None
