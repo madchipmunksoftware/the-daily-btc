@@ -11,7 +11,9 @@ from apscheduler.schedulers.background import BackgroundScheduler
 app = Flask(__name__)
 
 @app.route("/")
+@app.route("/home/")
 def get_home_page():
+    dashboard_manager.update(database_manager.read())
     return redirect("/home/")
 
 # Instantiate Managers With Latest Data
@@ -27,13 +29,6 @@ scheduler.add_job(
     trigger='interval',
     seconds=database_manager.update_rate_sec
     )
-scheduler.add_job(
-    func=dashboard_manager.update, 
-    args=[database_manager.read()],
-    trigger='interval',
-    seconds=database_manager.update_rate_sec + 60 * 10 # 10-Minute Delays For DB To Update
-    )
-scheduler.start()
 
 if __name__ == "__main__":
     # Development Server
