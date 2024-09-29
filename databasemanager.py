@@ -81,9 +81,6 @@ class DataBaseManager:
 
     def read(self):
         with Session(self.engine) as session:
-            # REFRESH TABLE OBJECTS
-            session.expire_all()
-
             # STATUSES TABLE
             statuses_rows_list = []
             statuses_query_results = session.execute(select(Statuses)).all()
@@ -111,6 +108,7 @@ class DataBaseManager:
                     "github_pull_request_contributors_count": statuses_query_result[0].github_pull_request_contributors_count
                     }
                 statuses_rows_list.append(statuses_row)
+            session.commit()
 
             # NEWS TABLE
             news_rows_list = []
@@ -128,6 +126,7 @@ class DataBaseManager:
                     "published_date": news_query_result[0].published_date
                     }
                 news_rows_list.append(news_row)
+            session.commit()
 
         # DATA OBJECTS
         data_objects = {
@@ -179,7 +178,7 @@ class DataBaseManager:
                 )
             if len(results) == 0:
                 session.execute(insert(Statuses), new_entry_statuses)
-                session.commit()
+            session.commit()
 
         # News API
         response_news = requests.get(
@@ -219,5 +218,5 @@ class DataBaseManager:
                     )
                 if len(results) == 0:
                     session.execute(insert(News), new_entry_news)
-                    session.commit()
+                session.commit()
         return None
