@@ -39,7 +39,7 @@ class DashBoardManager:
         self.update(data_objects)
         return None
     
-    def update_datasets(self, data_objects):
+    def get_dash_objects(self, data_objects):
         # ECONOMICS & SOCIALS CHARTS CALCULATIONS
         statuses_df = pd.DataFrame(data_objects['statuses']).dropna()
         statuses_df["last_updated_date"] = pd.to_datetime(statuses_df["last_updated_date"])
@@ -365,7 +365,7 @@ class DashBoardManager:
             }
         return dash_objects
 
-    def update_layout(self, dash_objects):
+    def update_dash_layout(self, dash_objects):
         dashboard_layout = html.Div(
             [
                 # HEADER SECTION
@@ -660,6 +660,6 @@ class DashBoardManager:
         return dashboard_layout
 
     def update(self, data_objects):
-        dash_objects = self.update_datasets(data_objects)
-        self.dashboard.layout = self.update_layout(dash_objects)
+        dash_objects = self.get_dash_objects(data_objects)
+        self.dashboard.layout = self.update_dash_layout(dash_objects)
         return None
