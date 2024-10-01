@@ -10,7 +10,7 @@ from transformers import pipeline
 
 class DashBoardManager:
     def __init__(self, app, data_objects):
-        # PARAMETERS
+        # Parameters
         self.dashboard = Dash(
             server=app,
             external_stylesheets=[dbc.themes.BOOTSTRAP],
@@ -19,7 +19,7 @@ class DashBoardManager:
         self.dashboard.title = "The Daily BTC"
         self.dashboard._favicon = "favicon.ico"
 
-        # CALCULATIONS
+        # Calculations
         self.sentiment_pipeline = pipeline(
             task="sentiment-analysis", 
             model="cardiffnlp/twitter-roberta-base-sentiment"
@@ -34,14 +34,13 @@ class DashBoardManager:
             "url_to_image": "",
             "published_date": ""
             }
-        
-        # LAYOUT
-        self.dash_objects = self.get_dash_objects(data_objects)
-        self.dashboard.layout = self.get_dash_layout
+
+        # Layout
+        self.update_layout(data_objects)
         return None
     
     def get_dash_objects(self, data_objects):
-        # ECONOMICS & SOCIALS CHARTS CALCULATIONS
+        # Economic & Social Charts Calculations
         statuses_df = pd.DataFrame(data_objects['statuses']).dropna()
         statuses_df["last_updated_date"] = pd.to_datetime(statuses_df["last_updated_date"])
         fig_columns = [
@@ -69,7 +68,7 @@ class DashBoardManager:
         fig_df["price_ema50_usd"] = fig_df["price_usd"].ewm(span=50, adjust=False).mean()
         fig_df["price_ema200_usd"] = fig_df["price_usd"].ewm(span=200, adjust=False).mean()
 
-        # ECONOMICS CHARTS DESIGNS
+        # Economic Charts Designs
         fig_prices = go.Figure()
         fig_prices.add_trace(
             go.Scatter(
@@ -159,7 +158,7 @@ class DashBoardManager:
             title={"text": "DAILY AVERAGE TOTAL VOLUME ($)", "x": 0.5}
             )
 
-        # SOCIALS CHARTS DESIGNS
+        # Social Charts Designs
         fig_github = go.Figure()
         fig_github.add_trace(
             go.Scatter(
@@ -256,7 +255,7 @@ class DashBoardManager:
             showlegend=False
             )
 
-        # GENERAL CHARTS STYLINGS
+        # General Charts Styles
         for fig_object in [fig_prices, fig_market_caps, fig_total_volumes, fig_github, fig_twitter]:
             fig_object.update_layout(
                 xaxis = {
@@ -273,7 +272,7 @@ class DashBoardManager:
                 font_color = "white"
                 )
 
-        # NEWS CHARTS CALCULATIONS
+        # News Charts Calculations
         temp_news_df = pd.DataFrame(data_objects['news']).dropna()
         temp_news_df = temp_news_df.loc[
             [
@@ -311,6 +310,7 @@ class DashBoardManager:
                     ignore_index=True
                     )
         
+        # News Charts Subsets
         news_today = (
             self.news_df[self.news_df["published_date"] == pd.to_datetime(pd.Timestamp('now').date())]
             .sort_values("sentiment_score", ascending=False).iloc[0].to_dict()
@@ -336,7 +336,7 @@ class DashBoardManager:
             else self.news_empty_post
             )
 
-        # DASHBOARD OBJECTS
+        # Dashboard Objects
         dash_objects = {
             "headline": {
                 "market_cap": statuses_df.loc[0, 'market_cap_rank'],
@@ -366,10 +366,10 @@ class DashBoardManager:
             }
         return dash_objects
 
-    def get_dash_layout(self):
+    def get_dash_layout(self, dash_objects):
         dash_layout = html.Div(
             [
-                # HEADER SECTION
+                # Header Section
                 html.Div(
                     [
                         html.H1(
@@ -380,42 +380,42 @@ class DashBoardManager:
                             ),
                         html.P(
                             f"""Last updated on 
-                            {self.dash_objects["headline"]["last_updated_timestamp"].strftime("%Y-%m-%d at %I:%M %p %Z.")}""", 
+                            {dash_objects["headline"]["last_updated_timestamp"].strftime("%Y-%m-%d at %I:%M %p %Z.")}""", 
                             style={"fontStyle": "italic", "fontSize": "12pt"}
                             )
                         ], 
                     className="row ps-4 pe-4 pt-4 pb-1 text-center"
                     ),
-                # HEADLINE SECTION
+                # Headline Section
                 html.Div(
                     [
                         html.P(
                             [
-                                html.Span(f"MARKET CAP RANK: #{self.dash_objects["headline"]["market_cap"]}"),
+                                html.Span(f"MARKET CAP RANK: #{dash_objects["headline"]["market_cap"]}"),
                                 html.Span(f"|", className="ps-3 pe-3"),
-                                html.Span(f"""ALL-TIME HIGH PRICE: ${self.dash_objects["headline"]["ath_usd"]:,} 
-                                          ON {self.dash_objects["headline"]["ath_date"]}"""),
+                                html.Span(f"""ALL-TIME HIGH PRICE: ${dash_objects["headline"]["ath_usd"]:,} 
+                                          ON {dash_objects["headline"]["ath_date"]}"""),
                                 html.Span(f"|", className="ps-3 pe-3"),
-                                html.Span(f"""ALL-TIME LOW PRICE: ${self.dash_objects["headline"]["atl_usd"]:,} 
-                                          ON {self.dash_objects["headline"]["atl_date"]}""")
+                                html.Span(f"""ALL-TIME LOW PRICE: ${dash_objects["headline"]["atl_usd"]:,} 
+                                          ON {dash_objects["headline"]["atl_date"]}""")
                                 ]
                             )
                         ], 
                     className="row ps-4 pe-4 text-center"
                     ),
-                # NEWS & CHARTS SECTION
+                # News And Charts Sections
                 html.Div(
                     [
-                        html.Div( # SOCIAL & ECONOMIC CHARTS SECTION
+                        html.Div( # Economic And Social Charts Sections
                             [
-                                html.Div( # ECONOMIC CHARTS SECTION
+                                html.Div( # Economic Charts Section
                                     [
                                         html.P("ECONOMIC CHARTS"),
                                         dcc.Tabs(
                                             [
                                                 dcc.Tab(
                                                     dcc.Graph(
-                                                        figure=self.dash_objects["economics"]["prices"], 
+                                                        figure=dash_objects["economics"]["prices"], 
                                                         style={"width": "100%"}
                                                         ),
                                                     label='PRICES', 
@@ -428,7 +428,7 @@ class DashBoardManager:
                                                     ),
                                                 dcc.Tab(
                                                     dcc.Graph(
-                                                        figure=self.dash_objects["economics"]["market_caps"], 
+                                                        figure=dash_objects["economics"]["market_caps"], 
                                                         style={"width": "100%"}
                                                         ),
                                                     label='MARKET CAPS', 
@@ -441,7 +441,7 @@ class DashBoardManager:
                                                     ),
                                                 dcc.Tab(
                                                     dcc.Graph(
-                                                        figure=self.dash_objects["economics"]["total_volumes"], 
+                                                        figure=dash_objects["economics"]["total_volumes"], 
                                                         style={"width": "100%"}
                                                         ),
                                                     label='TOTAL VOLUMES', 
@@ -458,14 +458,14 @@ class DashBoardManager:
                                         ], 
                                     className="col pb-5"
                                     ),
-                                html.Div( # SOCIAL CHARTS SECTION
+                                html.Div( # Social Charts Section
                                     [
                                         html.P("SOCIAL CHARTS"),
                                         dcc.Tabs(
                                             [
                                                 dcc.Tab(
                                                     dcc.Graph(
-                                                        figure=self.dash_objects["socials"]["github"], 
+                                                        figure=dash_objects["socials"]["github"], 
                                                         style={"width": "100%"}
                                                         ),
                                                     label='GITHUB', 
@@ -478,7 +478,7 @@ class DashBoardManager:
                                                     ),
                                                 dcc.Tab(
                                                     dcc.Graph(
-                                                        figure=self.dash_objects["socials"]["twitter"], 
+                                                        figure=dash_objects["socials"]["twitter"], 
                                                         style={"width": "100%"}
                                                         ),
                                                     label='TWITTER', 
@@ -498,10 +498,10 @@ class DashBoardManager:
                                 ], 
                             className="col-md-8 pe-4"
                             ),
-                        html.Div( # NEWS SECTION
+                        html.Div( # News Section
                             [
                                 html.P("MAJOR NEWS"),
-                                html.Div( # TODAY POST
+                                html.Div( # Today
                                     html.Div(
                                         html.Div(
                                             [
@@ -514,20 +514,20 @@ class DashBoardManager:
                                                     [
                                                         html.Div(
                                                             html.Img(
-                                                                src=self.dash_objects["news"]["today"]["url_to_image"], 
+                                                                src=dash_objects["news"]["today"]["url_to_image"], 
                                                                 className="mx-auto w-100",
                                                                 ),
                                                             className="d-flex align-items-center"
                                                             ),
                                                         html.A(
-                                                            self.dash_objects["news"]["today"]["title"], 
-                                                            href=self.dash_objects["news"]["today"]["url_to_post"],
+                                                            dash_objects["news"]["today"]["title"], 
+                                                            href=dash_objects["news"]["today"]["url_to_post"],
                                                             target="_blank",
                                                             rel="noopener noreferrer"
                                                             ),
                                                         html.Br(),
                                                         html.Span(
-                                                            self.dash_objects["news"]["today"]["subtitle"], 
+                                                            dash_objects["news"]["today"]["subtitle"], 
                                                             style={"fontStyle": "italic"}
                                                             )
                                                         ]
@@ -539,7 +539,7 @@ class DashBoardManager:
                                         ),
                                     className="col pb-5"
                                     ),
-                                html.Div( # THIS WEEK POST
+                                html.Div( # This Week
                                     html.Div(
                                         html.Div(
                                             [
@@ -552,20 +552,20 @@ class DashBoardManager:
                                                     [
                                                         html.Div(
                                                             html.Img(
-                                                                src=self.dash_objects["news"]["this_week"]["url_to_image"], 
+                                                                src=dash_objects["news"]["this_week"]["url_to_image"], 
                                                                 className="mx-auto w-100",
                                                                 ),
                                                             className="d-flex align-items-center"
                                                             ),
                                                         html.A(
-                                                            self.dash_objects["news"]["this_week"]["title"], 
-                                                            href=self.dash_objects["news"]["this_week"]["url_to_post"],
+                                                            dash_objects["news"]["this_week"]["title"], 
+                                                            href=dash_objects["news"]["this_week"]["url_to_post"],
                                                             target="_blank",
                                                             rel="noopener noreferrer"
                                                             ),
                                                         html.Br(),
                                                         html.Span(
-                                                            self.dash_objects["news"]["this_week"]["subtitle"], 
+                                                            dash_objects["news"]["this_week"]["subtitle"], 
                                                             style={"fontStyle": "italic"}
                                                             )
                                                         ]
@@ -577,7 +577,7 @@ class DashBoardManager:
                                         ),
                                     className="col pb-5"
                                     ),
-                                html.Div(  # THIS MONTH POST
+                                html.Div(  # This Month
                                     html.Div(
                                         html.Div(
                                             [
@@ -590,20 +590,20 @@ class DashBoardManager:
                                                     [
                                                         html.Div(
                                                             html.Img(
-                                                                src=self.dash_objects["news"]["this_month"]["url_to_image"], 
+                                                                src=dash_objects["news"]["this_month"]["url_to_image"], 
                                                                 className="mx-auto w-100",
                                                                 ),
                                                             className="d-flex align-items-center"
                                                             ),
                                                         html.A(
-                                                            self.dash_objects["news"]["this_month"]["title"], 
-                                                            href=self.dash_objects["news"]["this_month"]["url_to_post"],
+                                                            dash_objects["news"]["this_month"]["title"], 
+                                                            href=dash_objects["news"]["this_month"]["url_to_post"],
                                                             target="_blank",
                                                             rel="noopener noreferrer"
                                                             ),
                                                         html.Br(),
                                                         html.Span(
-                                                            self.dash_objects["news"]["this_month"]["subtitle"], 
+                                                            dash_objects["news"]["this_month"]["subtitle"], 
                                                             style={"fontStyle": "italic"}
                                                             )
                                                         ]
@@ -621,7 +621,7 @@ class DashBoardManager:
                         ], 
                     className="row ps-4 pe-4 pt-4"
                     ),
-                html.Div( # FOOTER SECTION
+                html.Div( # Footer Section
                     [
                         html.Span("For demonstration purposes only; not for commercial use."),
                         html.Br(),
@@ -660,7 +660,7 @@ class DashBoardManager:
             )
         return dash_layout
 
-    def update_dash_objects(self, data_objects):
-        self.dash_objects = self.get_dash_objects(data_objects)
+    def update_layout(self, data_objects):
+        dash_objects = self.get_dash_objects(data_objects)
+        self.dashboard.layout = self.get_dash_layout(dash_objects)
         return None
-    

@@ -16,21 +16,21 @@ def get_home_page():
 
 # Instantiate Managers With Latest Data
 database_manager = DataBaseManager()
-database_manager.update()
-dashboard_manager = DashBoardManager(app, database_manager.read())
+database_manager.update_database()
+dashboard_manager = DashBoardManager(app, database_manager.read_database())
 
 # Schedule Background Tasks
 scheduler = BackgroundScheduler(daemon=True)
 scheduler.add_job(
-    func=database_manager.update, 
+    func=database_manager.update_database, 
     trigger='interval',
-    seconds=database_manager.update_rate_sec
+    seconds=database_manager.update_database_rate_sec
     )
 scheduler.add_job(
-    func=dashboard_manager.update_dash_objects, 
-    kwargs={"data_objects": database_manager.read()},
+    func=dashboard_manager.update_layout, 
+    args=[database_manager.read_database()],
     trigger='interval',
-    seconds=database_manager.update_rate_sec + 60 * 10 # 10-Minute Delays For DataBase Updates
+    seconds=database_manager.update_database_rate_sec + 60 * 10 # 10-Minute Delay After DataBaseManager Update Call
     )
 scheduler.start()
 
