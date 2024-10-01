@@ -36,7 +36,8 @@ class DashBoardManager:
             }
         
         # LAYOUT
-        self.update(data_objects)
+        self.dash_objects = self.get_dash_objects(data_objects)
+        self.dashboard.layout = self.get_dash_layout
         return None
     
     def get_dash_objects(self, data_objects):
@@ -365,8 +366,8 @@ class DashBoardManager:
             }
         return dash_objects
 
-    def update_dash_layout(self, dash_objects):
-        dashboard_layout = html.Div(
+    def get_dash_layout(self):
+        dash_layout = html.Div(
             [
                 # HEADER SECTION
                 html.Div(
@@ -379,7 +380,7 @@ class DashBoardManager:
                             ),
                         html.P(
                             f"""Last updated on 
-                            {dash_objects["headline"]["last_updated_timestamp"].strftime("%Y-%m-%d at %I:%M %p %Z.")}""", 
+                            {self.dash_objects["headline"]["last_updated_timestamp"].strftime("%Y-%m-%d at %I:%M %p %Z.")}""", 
                             style={"fontStyle": "italic", "fontSize": "12pt"}
                             )
                         ], 
@@ -390,13 +391,13 @@ class DashBoardManager:
                     [
                         html.P(
                             [
-                                html.Span(f"MARKET CAP RANK: #{dash_objects["headline"]["market_cap"]}"),
+                                html.Span(f"MARKET CAP RANK: #{self.dash_objects["headline"]["market_cap"]}"),
                                 html.Span(f"|", className="ps-3 pe-3"),
-                                html.Span(f"""ALL-TIME HIGH PRICE: ${dash_objects["headline"]["ath_usd"]:,} 
-                                          ON {dash_objects["headline"]["ath_date"]}"""),
+                                html.Span(f"""ALL-TIME HIGH PRICE: ${self.dash_objects["headline"]["ath_usd"]:,} 
+                                          ON {self.dash_objects["headline"]["ath_date"]}"""),
                                 html.Span(f"|", className="ps-3 pe-3"),
-                                html.Span(f"""ALL-TIME LOW PRICE: ${dash_objects["headline"]["atl_usd"]:,} 
-                                          ON {dash_objects["headline"]["atl_date"]}""")
+                                html.Span(f"""ALL-TIME LOW PRICE: ${self.dash_objects["headline"]["atl_usd"]:,} 
+                                          ON {self.dash_objects["headline"]["atl_date"]}""")
                                 ]
                             )
                         ], 
@@ -414,7 +415,7 @@ class DashBoardManager:
                                             [
                                                 dcc.Tab(
                                                     dcc.Graph(
-                                                        figure=dash_objects["economics"]["prices"], 
+                                                        figure=self.dash_objects["economics"]["prices"], 
                                                         style={"width": "100%"}
                                                         ),
                                                     label='PRICES', 
@@ -427,7 +428,7 @@ class DashBoardManager:
                                                     ),
                                                 dcc.Tab(
                                                     dcc.Graph(
-                                                        figure=dash_objects["economics"]["market_caps"], 
+                                                        figure=self.dash_objects["economics"]["market_caps"], 
                                                         style={"width": "100%"}
                                                         ),
                                                     label='MARKET CAPS', 
@@ -440,7 +441,7 @@ class DashBoardManager:
                                                     ),
                                                 dcc.Tab(
                                                     dcc.Graph(
-                                                        figure=dash_objects["economics"]["total_volumes"], 
+                                                        figure=self.dash_objects["economics"]["total_volumes"], 
                                                         style={"width": "100%"}
                                                         ),
                                                     label='TOTAL VOLUMES', 
@@ -464,7 +465,7 @@ class DashBoardManager:
                                             [
                                                 dcc.Tab(
                                                     dcc.Graph(
-                                                        figure=dash_objects["socials"]["github"], 
+                                                        figure=self.dash_objects["socials"]["github"], 
                                                         style={"width": "100%"}
                                                         ),
                                                     label='GITHUB', 
@@ -477,7 +478,7 @@ class DashBoardManager:
                                                     ),
                                                 dcc.Tab(
                                                     dcc.Graph(
-                                                        figure=dash_objects["socials"]["twitter"], 
+                                                        figure=self.dash_objects["socials"]["twitter"], 
                                                         style={"width": "100%"}
                                                         ),
                                                     label='TWITTER', 
@@ -513,20 +514,20 @@ class DashBoardManager:
                                                     [
                                                         html.Div(
                                                             html.Img(
-                                                                src=dash_objects["news"]["today"]["url_to_image"], 
+                                                                src=self.dash_objects["news"]["today"]["url_to_image"], 
                                                                 className="mx-auto w-100",
                                                                 ),
                                                             className="d-flex align-items-center"
                                                             ),
                                                         html.A(
-                                                            dash_objects["news"]["today"]["title"], 
-                                                            href=dash_objects["news"]["today"]["url_to_post"],
+                                                            self.dash_objects["news"]["today"]["title"], 
+                                                            href=self.dash_objects["news"]["today"]["url_to_post"],
                                                             target="_blank",
                                                             rel="noopener noreferrer"
                                                             ),
                                                         html.Br(),
                                                         html.Span(
-                                                            dash_objects["news"]["today"]["subtitle"], 
+                                                            self.dash_objects["news"]["today"]["subtitle"], 
                                                             style={"fontStyle": "italic"}
                                                             )
                                                         ]
@@ -551,20 +552,20 @@ class DashBoardManager:
                                                     [
                                                         html.Div(
                                                             html.Img(
-                                                                src=dash_objects["news"]["this_week"]["url_to_image"], 
+                                                                src=self.dash_objects["news"]["this_week"]["url_to_image"], 
                                                                 className="mx-auto w-100",
                                                                 ),
                                                             className="d-flex align-items-center"
                                                             ),
                                                         html.A(
-                                                            dash_objects["news"]["this_week"]["title"], 
-                                                            href=dash_objects["news"]["this_week"]["url_to_post"],
+                                                            self.dash_objects["news"]["this_week"]["title"], 
+                                                            href=self.dash_objects["news"]["this_week"]["url_to_post"],
                                                             target="_blank",
                                                             rel="noopener noreferrer"
                                                             ),
                                                         html.Br(),
                                                         html.Span(
-                                                            dash_objects["news"]["this_week"]["subtitle"], 
+                                                            self.dash_objects["news"]["this_week"]["subtitle"], 
                                                             style={"fontStyle": "italic"}
                                                             )
                                                         ]
@@ -589,20 +590,20 @@ class DashBoardManager:
                                                     [
                                                         html.Div(
                                                             html.Img(
-                                                                src=dash_objects["news"]["this_month"]["url_to_image"], 
+                                                                src=self.dash_objects["news"]["this_month"]["url_to_image"], 
                                                                 className="mx-auto w-100",
                                                                 ),
                                                             className="d-flex align-items-center"
                                                             ),
                                                         html.A(
-                                                            dash_objects["news"]["this_month"]["title"], 
-                                                            href=dash_objects["news"]["this_month"]["url_to_post"],
+                                                            self.dash_objects["news"]["this_month"]["title"], 
+                                                            href=self.dash_objects["news"]["this_month"]["url_to_post"],
                                                             target="_blank",
                                                             rel="noopener noreferrer"
                                                             ),
                                                         html.Br(),
                                                         html.Span(
-                                                            dash_objects["news"]["this_month"]["subtitle"], 
+                                                            self.dash_objects["news"]["this_month"]["subtitle"], 
                                                             style={"fontStyle": "italic"}
                                                             )
                                                         ]
@@ -657,9 +658,9 @@ class DashBoardManager:
                 ], 
             className="container-fluid bg-dark text-white"
             )
-        return dashboard_layout
+        return dash_layout
 
-    def update(self, data_objects):
-        dash_objects = self.get_dash_objects(data_objects)
-        self.dashboard.layout = self.update_dash_layout(dash_objects)
+    def update_dash_objects(self, data_objects):
+        self.dash_objects = self.get_dash_objects(data_objects)
         return None
+    

@@ -14,8 +14,9 @@ app = Flask(__name__)
 def get_home_page():
     return redirect("/home/")
 
-# Instantiate Managers
+# Instantiate Managers With Latest Data
 database_manager = DataBaseManager()
+database_manager.update()
 dashboard_manager = DashBoardManager(app, database_manager.read())
 
 # Schedule Background Tasks
@@ -26,8 +27,8 @@ scheduler.add_job(
     seconds=database_manager.update_rate_sec
     )
 scheduler.add_job(
-    func=dashboard_manager.update, 
-    args=[database_manager.read()],
+    func=dashboard_manager.update_dash_objects, 
+    kwargs={"data_objects": database_manager.read()},
     trigger='interval',
     seconds=database_manager.update_rate_sec + 60 * 10 # 10-Minute Delays For DataBase Updates
     )
