@@ -25,19 +25,21 @@ def update_database_manager():
     return None
 
 def update_dashboard_manager():
-    dashboard_manager.update_layout(database_manager.read_database())
+    dashboard_manager.update_dash_objects(database_manager.read_database())
     return None
 
 scheduler = BackgroundScheduler(daemon=True)
 scheduler.add_job(
     func=update_database_manager, 
     trigger='interval',
-    seconds=database_manager.update_database_rate_sec
+    seconds=60*10
+    # seconds=database_manager.update_database_rate_sec
     )
 scheduler.add_job(
     func=update_dashboard_manager, 
     trigger='interval',
-    seconds=database_manager.update_database_rate_sec + 60 * 10 # 10-Minute Delays For DataBase Updates
+    seconds=60*12
+    # seconds=database_manager.update_database_rate_sec + 60 * 10 # 10-Minute Delays For DataBase Updates
     )
 scheduler.start()
 

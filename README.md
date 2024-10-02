@@ -24,8 +24,8 @@ Above is a diagram of the system. Here is an overview of its operations:
             <li>Built on Dash, HTML and CSS(Bootstrap).</li>
         </ul>
     </li>
-    <li>app.py: The Web Application that also oversees the managers.</li>
-    <li>wsgi.py: A WSGI built on Gunicorn.</li>
+    <li>app.py: The Application which also oversees the managers.</li>
+    <li>wsgi.py: A WSGI Server built on Gunicorn.</li>
     <li>Nginx: A Web Server.</li>
 </ol>
 
@@ -36,7 +36,7 @@ By going to the webpage above, a user can get a quick update on recent price act
 
 Here are some areas for improvement:
 <ol>
-    <li>API Rates: The website is updated once per hour because of the APIs' free plans limitations. For more granularity and frequency, APIs' paid plans are required.</li>
+    <li>API Rates: The website is updated once per hour because of the APIs' free plans limitations. For more granularity and update frequency, APIs' paid plans are required.</li>
     <li>Machine Learning:</li>
     <ul>
         <li>Sentiment analysis is performed on each new's title and description because the new's content, in the News API free plan, is often incomplete.</li>
