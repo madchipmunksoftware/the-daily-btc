@@ -171,6 +171,7 @@ class DataBaseManager:
         )
 
         with Session(self.engine) as session:
+            session.commit()
             results = session.scalars(select(Statuses)
                                       .where(Statuses.last_updated_timestamp == entry_status.last_updated_timestamp)).all()
             if len(results) == 0:
@@ -207,6 +208,7 @@ class DataBaseManager:
                     published_timestamp=news["publishedAt"],
                     published_date=news["publishedAt"].split("T")[0]
                 )
+                session.commit()
                 results = session.scalars(select(News)
                                           .where(News.url_to_post == entry_news.url_to_post)).all()
                 if len(results) == 0:
