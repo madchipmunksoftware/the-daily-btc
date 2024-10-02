@@ -84,6 +84,7 @@ class DataBaseManager:
         with Session(self.engine) as session:
             # STATUSES TABLE
             statuses_rows_list = []
+            session.commit()
             statuses_query_results = session.scalars(select(Statuses)).all()
             for result in statuses_query_results:
                 statuses_row = {
@@ -112,6 +113,7 @@ class DataBaseManager:
 
             # NEWS TABLE
             news_rows_list = []
+            session.commit()
             news_query_results = session.scalars(select(News)).all()
             for result in news_query_results:
                 news_row = {

@@ -37,7 +37,7 @@ scheduler.add_job(
 scheduler.add_job(
     func=update_dashboard_manager, 
     trigger='interval',
-   seconds=database_manager.update_database_rate_sec + 60 * 10 # 10-Minute Delays For DataBase Updates
+    seconds=database_manager.update_database_rate_sec + 60 * 10 # 10-Minute Delays For DataBase Updates
     )
 scheduler.start()
 
