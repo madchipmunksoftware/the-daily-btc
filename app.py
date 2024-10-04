@@ -32,14 +32,12 @@ scheduler = BackgroundScheduler(daemon=True)
 scheduler.add_job(
     func=update_database_manager, 
     trigger='interval',
-    seconds=60*10
-    # seconds=database_manager.update_database_rate_sec
+    seconds=database_manager.update_database_rate_sec
     )
 scheduler.add_job(
     func=update_dashboard_manager, 
     trigger='interval',
-    seconds=60*12
-    # seconds=database_manager.update_database_rate_sec + 60 * 10 # 10-Minute Delays For DataBase Updates
+    seconds=database_manager.update_database_rate_sec + 60 * 15 # 15-Minute Delays For DataBase Updates
     )
 scheduler.start()
 

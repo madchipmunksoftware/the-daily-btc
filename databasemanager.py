@@ -60,7 +60,7 @@ class DataBaseManager:
     def __init__(self):
         # Parameters
         self.crypto_id = "bitcoin"
-        self.update_database_rate_sec = 60 * 60 * 1 # 1-Hour Delays Between API Calls
+        self.update_database_rate_sec = 60 * 60 * 8 # 8-Hour Delays Between API Calls
         self.db_path = os.getenv("DB_PATH")
         self.create_database()
 

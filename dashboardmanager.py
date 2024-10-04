@@ -43,7 +43,7 @@ class DashBoardManager:
     def get_dash_objects(self, data_objects):
         # Economic & Social Charts Calculations
         statuses_df = pd.DataFrame(data_objects['statuses']).dropna()
-        statuses_df["last_updated_date"] = pd.to_datetime(statuses_df["last_updated_date"])
+        statuses_df["last_updated_date"] = pd.to_datetime(statuses_df["last_updated_date"], utc=True)
         fig_columns = [
             "last_updated_date", 
             "price_usd", "market_cap_usd", "fully_diluted_valuation_usd", "total_volume_usd",
@@ -284,7 +284,7 @@ class DashBoardManager:
                 ]
             ]
         if len(temp_news_df) > 0:
-            temp_news_df["published_date"] = pd.to_datetime(temp_news_df["published_date"])
+            temp_news_df["published_date"] = pd.to_datetime(temp_news_df["published_date"], utc=True)
             temp_news_df["subtitle"] = (
                 "By "+ temp_news_df["author"] +
                 " on " + temp_news_df["published_date"].dt.strftime("%b %d, %Y")
@@ -313,27 +313,27 @@ class DashBoardManager:
         
         # News Charts Subsets
         news_today = (
-            self.news_df[self.news_df["published_date"] == pd.to_datetime(pd.Timestamp('now').date())]
+            self.news_df[self.news_df["published_date"] >= pd.Timestamp.utcnow().floor('D')]
             .sort_values("sentiment_score", ascending=False).iloc[0].to_dict()
-            if (self.news_df["published_date"] == pd.to_datetime(pd.Timestamp('now').date())).any()
+            if (self.news_df["published_date"] >= pd.Timestamp.utcnow().floor('D')).any()
             else self.news_empty_post
             )
         news_this_week = (
             self.news_df[
-                (self.news_df["published_date"] < pd.to_datetime(pd.Timestamp('now').date())) & 
-                (self.news_df["published_date"] >= pd.to_datetime(pd.Timestamp('now').date() - pd.DateOffset(days=7)))
+                (self.news_df["published_date"] < pd.Timestamp.utcnow().floor('D')) & 
+                (self.news_df["published_date"] >= pd.to_datetime(pd.Timestamp.utcnow().floor('D') - pd.DateOffset(days=7)))
                 ].sort_values("sentiment_score", ascending=False).iloc[0].to_dict()
-            if ((self.news_df["published_date"] < pd.to_datetime(pd.Timestamp('now').date())) & 
-                (self.news_df["published_date"] >= pd.to_datetime(pd.Timestamp('now').date() - pd.DateOffset(days=7)))).any()
+            if ((self.news_df["published_date"] < pd.Timestamp.utcnow().floor('D')) & 
+                (self.news_df["published_date"] >= pd.to_datetime(pd.Timestamp.utcnow().floor('D') - pd.DateOffset(days=7)))).any()
             else self.news_empty_post
             )
         news_this_month = (
             self.news_df[
-                (self.news_df["published_date"] < pd.to_datetime(pd.Timestamp('now').date() - pd.DateOffset(days=7))) & 
-                (self.news_df["published_date"] >= pd.to_datetime(pd.Timestamp('now').date() - pd.DateOffset(days=30)))
+                (self.news_df["published_date"] < pd.to_datetime(pd.Timestamp.utcnow().floor('D') - pd.DateOffset(days=7))) & 
+                (self.news_df["published_date"] >= pd.to_datetime(pd.Timestamp.utcnow().floor('D') - pd.DateOffset(days=30)))
                 ].sort_values("sentiment_score", ascending=False).iloc[0].to_dict()
-            if ((self.news_df["published_date"] < pd.to_datetime(pd.Timestamp('now').date() - pd.DateOffset(days=7))) & 
-                (self.news_df["published_date"] >= pd.to_datetime(pd.Timestamp('now').date() - pd.DateOffset(days=30)))).any()
+            if ((self.news_df["published_date"] < pd.to_datetime(pd.Timestamp.utcnow().floor('D') - pd.DateOffset(days=7))) & 
+                (self.news_df["published_date"] >= pd.to_datetime(pd.Timestamp.utcnow().floor('D') - pd.DateOffset(days=30)))).any()
             else self.news_empty_post
             )
 
@@ -346,8 +346,8 @@ class DashBoardManager:
                 "atl_usd": statuses_df.loc[0, 'atl_usd'],
                 "atl_date": statuses_df.loc[0, 'atl_date'],
                 "last_updated_timestamp": max(
-                    pd.to_datetime(self.news_df["published_timestamp"]).max(), 
-                    pd.to_datetime(statuses_df["last_updated_timestamp"]).max()
+                    pd.to_datetime(self.news_df["published_timestamp"], utc=True).max(), 
+                    pd.to_datetime(statuses_df["last_updated_timestamp"], utc=True).max()
                     )
                 },
             "economics": {
