@@ -187,7 +187,7 @@ class DashBoardManager:
                 y=[fig_df["github_total_issues_count"].tolist()[-1]],
                 mode="lines+text",
                 line={"color": "red"},
-                text=[f"{fig_df["github_total_issues_count"].tolist()[-1]:,}"],
+                text=[f"{fig_df['github_total_issues_count'].tolist()[-1]:,}"],
                 textfont={"color": "red", "size": 12},
                 textposition="middle right",
                 showlegend=False
@@ -199,7 +199,7 @@ class DashBoardManager:
                 y=[fig_df["github_closed_issues_count"].tolist()[-1]],
                 mode="lines+text",
                 line={"color": "lime"},
-                text=[f"{fig_df["github_closed_issues_count"].tolist()[-1]:,}"],
+                text=[f"{fig_df['github_closed_issues_count'].tolist()[-1]:,}"],
                 textfont={"color": "lime", "size": 12},
                 textposition="middle right",
                 showlegend=False
@@ -226,7 +226,7 @@ class DashBoardManager:
                 y=[fig_df["twitter_followers_count"].tolist()[0]],
                 mode='markers+text',
                 marker={"color": "yellow", "size": 12},
-                text=[f"{fig_df["twitter_followers_count"].tolist()[0]:,}"],
+                text=[f"{fig_df['twitter_followers_count'].tolist()[0]:,}"],
                 textfont={"color": "yellow"},
                 textposition="top center"
                 )
@@ -237,7 +237,7 @@ class DashBoardManager:
                 y=[fig_df["twitter_followers_count"].tolist()[-1]],
                 mode='markers+text',
                 marker={"color": "yellow", "size": 12},
-                text=[f"{fig_df["twitter_followers_count"].tolist()[-1]:,}"],
+                text=[f"{fig_df['twitter_followers_count'].tolist()[-1]:,}"],
                 textfont={"color": "yellow"},
                 textposition="top center"
                 )
@@ -313,17 +313,17 @@ class DashBoardManager:
         
         # News Charts Subsets
         news_today = (
-            self.news_df[self.news_df["published_date"] >= pd.Timestamp.utcnow().floor('D')]
+            self.news_df[self.news_df["published_date"] >= pd.to_datetime(pd.Timestamp.utcnow().floor('D') - pd.DateOffset(days=1))]
             .sort_values("sentiment_score", ascending=False).iloc[0].to_dict()
-            if (self.news_df["published_date"] >= pd.Timestamp.utcnow().floor('D')).any()
+            if (self.news_df["published_date"] >= pd.to_datetime(pd.Timestamp.utcnow().floor('D') - pd.DateOffset(days=1))).any()
             else self.news_empty_post
             )
         news_this_week = (
             self.news_df[
-                (self.news_df["published_date"] < pd.Timestamp.utcnow().floor('D')) & 
+                (self.news_df["published_date"] < pd.to_datetime(pd.Timestamp.utcnow().floor('D') - pd.DateOffset(days=1))) & 
                 (self.news_df["published_date"] >= pd.to_datetime(pd.Timestamp.utcnow().floor('D') - pd.DateOffset(days=7)))
                 ].sort_values("sentiment_score", ascending=False).iloc[0].to_dict()
-            if ((self.news_df["published_date"] < pd.Timestamp.utcnow().floor('D')) & 
+            if ((self.news_df["published_date"] < pd.to_datetime(pd.Timestamp.utcnow().floor('D') - pd.DateOffset(days=1))) & 
                 (self.news_df["published_date"] >= pd.to_datetime(pd.Timestamp.utcnow().floor('D') - pd.DateOffset(days=7)))).any()
             else self.news_empty_post
             )
@@ -381,7 +381,7 @@ class DashBoardManager:
                             ),
                         html.P(
                             f"""Last updated on 
-                            {self.dash_objects["headline"]["last_updated_timestamp"].strftime("%Y-%m-%d at %I:%M %p %Z.")}""", 
+                            {self.dash_objects['headline']['last_updated_timestamp'].strftime("%Y-%m-%d at %I:%M %p %Z.")}""", 
                             style={"fontStyle": "italic", "fontSize": "12pt"}
                             )
                         ], 
@@ -392,13 +392,13 @@ class DashBoardManager:
                     [
                         html.P(
                             [
-                                html.Span(f"MARKET CAP RANK: #{self.dash_objects["headline"]["market_cap"]}"),
+                                html.Span(f"MARKET CAP RANK: #{self.dash_objects['headline']['market_cap']}"),
                                 html.Span(f"|", className="ps-3 pe-3"),
-                                html.Span(f"""ALL-TIME HIGH PRICE: ${self.dash_objects["headline"]["ath_usd"]:,} 
-                                          ON {self.dash_objects["headline"]["ath_date"]}"""),
+                                html.Span(f"""ALL-TIME HIGH PRICE: ${self.dash_objects['headline']['ath_usd']:,} 
+                                          ON {self.dash_objects['headline']['ath_date']}"""),
                                 html.Span(f"|", className="ps-3 pe-3"),
-                                html.Span(f"""ALL-TIME LOW PRICE: ${self.dash_objects["headline"]["atl_usd"]:,} 
-                                          ON {self.dash_objects["headline"]["atl_date"]}""")
+                                html.Span(f"""ALL-TIME LOW PRICE: ${self.dash_objects['headline']['atl_usd']:,} 
+                                          ON {self.dash_objects['headline']['atl_date']}""")
                                 ]
                             )
                         ], 
