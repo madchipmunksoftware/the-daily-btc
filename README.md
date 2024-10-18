@@ -29,7 +29,10 @@ Above is a diagram of the system. Here is an overview of its operations:
     <li>Nginx: A Web Server.</li>
 </ol>
 
-# Results
+# Conclusion
+
+<img src="./assets/webpage-screenshot.png">
+
 The Daily BTC: <a href="https://thedailybtc.online/" target="_blank" rel="noopener noreferrer">www.thedailybtc.online</a>
 
 By going to the webpage above, a user can get a quick update on recent price actions and major news for Bitcoin.
