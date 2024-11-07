@@ -340,11 +340,11 @@ class DashBoardManager:
         # Dashboard Objects
         dash_objects = {
             "headline": {
-                "market_cap": statuses_df.loc[0, 'market_cap_rank'],
-                "ath_usd": statuses_df.loc[0, 'ath_usd'],
-                "ath_date": statuses_df.loc[0, 'ath_date'],
-                "atl_usd": statuses_df.loc[0, 'atl_usd'],
-                "atl_date": statuses_df.loc[0, 'atl_date'],
+                "market_cap": statuses_df.loc[-1, 'market_cap_rank'],
+                "ath_usd": statuses_df.loc[-1, 'ath_usd'],
+                "ath_date": statuses_df.loc[-1, 'ath_date'],
+                "atl_usd": statuses_df.loc[-1, 'atl_usd'],
+                "atl_date": statuses_df.loc[-1, 'atl_date'],
                 "last_updated_timestamp": max(
                     pd.to_datetime(self.news_df["published_timestamp"], utc=True).max(), 
                     pd.to_datetime(statuses_df["last_updated_timestamp"], utc=True).max()
